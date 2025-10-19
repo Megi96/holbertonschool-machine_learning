@@ -1,19 +1,19 @@
 #!/usr/bin/env python3
 """
-Concatenate two matrices along a specified axis.
-Return "OK" if shapes mismatch.
+Concatenate two matrices along a given axis.
+Return "OK" if the shapes do not match.
 """
 
 
 def cat_matrices(mat1, mat2, axis=0):
-    """Recursively concatenate two matrices along a given axis."""
+    """Recursively concatenate mat1 and mat2 along the specified axis."""
+    # Top-level concatenation
     if axis == 0:
-        # Top-level concatenation
         if not isinstance(mat1, list) or not isinstance(mat2, list):
             return "OK"
         return [elem for elem in mat1] + [elem for elem in mat2]
 
-    # Lower axes: must match length
+    # Lower axes: dimensions must match
     if not isinstance(mat1, list) or not isinstance(mat2, list):
         return "OK"
     if len(mat1) != len(mat2):
