@@ -1,14 +1,12 @@
 #!/usr/bin/env python3
 """
-102-squashed_like_sardines.py
-
 Concatenate two matrices along a specified axis without using numpy.
 """
 
 
 def cat_matrices(mat1, mat2, axis=0):
     """
-    Concatenates two matrices along a given axis.
+    Concatenates two matrices along a given axis, returning a new matrix.
 
     Args:
         mat1 (list): First matrix.
@@ -16,13 +14,13 @@ def cat_matrices(mat1, mat2, axis=0):
         axis (int): Axis along which to concatenate.
 
     Returns:
-        list: Concatenated matrix, or None if the shapes mismatch.
+        list: New concatenated matrix, or None if shapes mismatch.
     """
-    # Base case: axis 0, simple concatenation if lengths match higher dims
+    # Base case: axis 0, top-level concatenation
     if axis == 0:
         if not isinstance(mat1, list) or not isinstance(mat2, list):
             return None
-        return mat1 + mat2
+        return [elem for elem in mat1] + [elem for elem in mat2]
 
     # Check dimensions match for recursive concatenation
     if len(mat1) != len(mat2):
@@ -35,5 +33,4 @@ def cat_matrices(mat1, mat2, axis=0):
         if res is None:
             return None
         result.append(res)
-
-    return
+    return result
