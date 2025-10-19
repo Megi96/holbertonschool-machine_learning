@@ -3,6 +3,7 @@
 Slices a matrix along specific axes without importing any module.
 """
 
+
 def np_slice(matrix, axes={}):
     """
     Slices a matrix (NumPy ndarray) along specified axes.
