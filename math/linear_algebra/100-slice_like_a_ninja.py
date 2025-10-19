@@ -1,25 +1,22 @@
 #!/usr/bin/env python3
 """
-This module defines a function that slices
-a NumPy ndarray along specific axes.
+Slices a matrix along specific axes without importing any module.
 """
-
-import numpy as np
-
 
 def np_slice(matrix, axes={}):
     """
-    Slice a NumPy ndarray along specified axes.
+    Slices a matrix (NumPy ndarray) along specified axes.
 
     Args:
-        matrix (numpy.ndarray): The input array to slice.
-        axes (dict): A dictionary where keys are axes and values
-                     are tuples representing the slices to make
-                     along that axis.
+        matrix: The input matrix to slice (a numpy.ndarray).
+        axes (dict): A dictionary where each key is an axis (int)
+                     and the value is a tuple representing the slice
+                     along that axis. Example: {0: (2,), 2: (None, None, -2)}.
 
     Returns:
-        numpy.ndarray: The sliced array.
+        A new numpy.ndarray representing the sliced matrix.
     """
-    slices = [slice(*axes.get(i, (None, None, None)))
-              for i in range(matrix.ndim)]
+    slices = [slice(None)] * len(matrix.shape)
+    for axis, sl in axes.items():
+        slices[axis] = slice(*sl)
     return matrix[tuple(slices)]
