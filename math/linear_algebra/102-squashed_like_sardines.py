@@ -22,15 +22,18 @@ def cat_matrices(mat1, mat2, axis=0):
             return None
         return [elem for elem in mat1] + [elem for elem in mat2]
 
-    # Check dimensions match for recursive concatenation
+    # Ensure the sublists have the same length for deeper axes
+    if not isinstance(mat1, list) or not isinstance(mat2, list):
+        return None
     if len(mat1) != len(mat2):
         return None
 
-    # Recurse along the axis
-    result = []
-    for m1, m2 in zip(mat1, mat2):
-        res = cat_matrices(m1, m2, axis=axis-1)
-        if res is None:
+    # Recursively concatenate each corresponding element
+    new_matrix = []
+    for sub1, sub2 in zip(mat1, mat2):
+        sub_result = cat_matrices(sub1, sub2, axis=axis-1)
+        if sub_result is None:
             return None
-        result.append(res)
-    return result
+        new_matrix.append(sub_result)
+
+    return new_matrix
