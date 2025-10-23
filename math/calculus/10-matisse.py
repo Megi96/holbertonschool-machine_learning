@@ -13,11 +13,13 @@ def poly_derivative(poly):
 
     Returns:
         list: The derivative of the polynomial.
-        None: If poly is invalid or has length 0 or 1.
     """
     # Validate input
-    if not isinstance(poly, list) or len(poly) < 2:
+    if not isinstance(poly, list) or len(poly) == 0:
         return None
 
+    if len(poly) == 1:
+        return [0]
+
     # Compute derivative for valid polynomials
-    return [i * poly[i] for i in range(1, len(poly))]
+    return [i * poly[i] for i in range(1, len(poly))
