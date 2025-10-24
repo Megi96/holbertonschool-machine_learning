@@ -22,4 +22,4 @@ def poly_derivative(poly):
         return [0]
 
     # Compute derivative for valid polynomials
-    return [i * poly[i] for i in range(1, len(poly))
+    return [i * poly[i] for i in range(1, len(poly))]
