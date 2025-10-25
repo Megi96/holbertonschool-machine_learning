@@ -59,3 +59,19 @@ class Exponential:
             return 0
         e_approx = 2.7182818285
         return self.lambtha * (e_approx ** (-self.lambtha * x))
+
+    def cdf(self, x):
+        """
+        Calculate the cumulative distribution function (CDF) for a given
+        time period x.
+
+        Args:
+            x (float): Time period
+
+        Returns:
+            float: CDF value for x
+        """
+        if x < 0:
+            return 0
+        e_approx = 2.7182818285
+        return 1 - (e_approx ** (-self.lambtha * x))
