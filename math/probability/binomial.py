@@ -37,8 +37,9 @@ class Binomial:
             if n <= 0:
                 raise ValueError("n must be a positive value")
             if p <= 0 or p >= 1:
-                raise ValueError("p must be greater than 0 and less than 1")
-
+                raise ValueError(
+                    "p must be greater than 0 and less than 1"
+                )
             self.n = int(n)
             self.p = float(p)
         else:
@@ -55,6 +56,36 @@ class Binomial:
             self.n = round(n_round)
             self.p = mean / self.n
 
+    def factorial(self, x):
+        """
+        Compute factorial of x (x!).
+
+        Args:
+            x (int): Number to compute factorial of
+
+        Returns:
+            int: factorial of x
+        """
+        if x <= 1:
+            return 1
+        result = 1
+        for i in range(2, x + 1):
+            result *= i
+        return result
+
+    def comb(self, n, k):
+        """
+        Compute combinations C(n, k) = n! / (k! * (n-k)!).
+
+        Args:
+            n (int): Total items
+            k (int): Items chosen
+
+        Returns:
+            int: Number of combinations
+        """
+        return self.factorial(n) // (self.factorial(k) * self.factorial(n - k))
+
     def pmf(self, k):
         """
         Calculate the probability mass function (PMF) for a given number of
@@ -66,13 +97,13 @@ class Binomial:
         Returns:
             float: PMF value for k
         """
-        from math import comb
-
         k = int(k)
         if k < 0 or k > self.n:
             return 0
 
-        return comb(self.n, k) * (self.p ** k) * ((1 - self.p) ** (self.n - k))
+        return (self.comb(self.n, k)
+                * (self.p ** k)
+                * ((1 - self.p) ** (self.n - k)))
 
     def cdf(self, k):
         """
@@ -90,5 +121,7 @@ class Binomial:
             return 0
         if k >= self.n:
             return 1
-
-        return sum(self.pmf(i) for i in range(0, k + 1))
+        total = 0
+        for i in range(0, k + 1):
+            total += self.pmf(i)
+        return total
