@@ -54,3 +54,41 @@ class Binomial:
 
             self.n = round(n_round)
             self.p = mean / self.n
+
+    def pmf(self, k):
+        """
+        Calculate the probability mass function (PMF) for a given number of
+        successes k.
+
+        Args:
+            k (int or float): Number of successes
+
+        Returns:
+            float: PMF value for k
+        """
+        from math import comb
+
+        k = int(k)
+        if k < 0 or k > self.n:
+            return 0
+
+        return comb(self.n, k) * (self.p ** k) * ((1 - self.p) ** (self.n - k))
+
+    def cdf(self, k):
+        """
+        Calculate the cumulative distribution function (CDF) for a given
+        number of successes k.
+
+        Args:
+            k (int or float): Number of successes
+
+        Returns:
+            float: CDF value for k
+        """
+        k = int(k)
+        if k < 0:
+            return 0
+        if k >= self.n:
+            return 1
+
+        return sum(self.pmf(i) for i in range(0, k + 1))
