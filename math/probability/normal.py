@@ -77,8 +77,7 @@ class Normal:
         Returns:
             float: PDF value for x
         """
-        import math
-        e = math.e
-        pi = math.pi
-        return (1 / (self.stddev * (2 * pi) ** 0.5) *
-                e ** (-0.5 * ((x - self.mean) / self.stddev) ** 2))
+        e = 2.7182818285
+        pi = 3.1415926536
+        exponent = -0.5 * ((x - self.mean) / self.stddev) ** 2
+        return (1 / (self.stddev * (2 * pi) ** 0.5)) * (e ** exponent)
