@@ -43,3 +43,19 @@ class Exponential:
                 raise ValueError("data must contain multiple values")
             # Lambda for Exponential: 1 / mean
             self.lambtha = float(1 / (sum(data) / len(data)))
+
+    def pdf(self, x):
+        """
+        Calculate the probability density function (PDF) for a given
+        time period x.
+
+        Args:
+            x (float): Time period
+
+        Returns:
+            float: PDF value for x
+        """
+        if x < 0:
+            return 0
+        e_approx = 2.7182818285
+        return self.lambtha * (e_approx ** (-self.lambtha * x))
