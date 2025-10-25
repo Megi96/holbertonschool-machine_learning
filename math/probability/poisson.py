@@ -74,10 +74,29 @@ class Poisson:
         if k < 0:
             return 0
 
-        # PMF formula: (lambtha^k * e^-lambtha) / k!
         e_approx = 2.7182818285  # Approximate value of e
         return (
             (self.lambtha ** k)
             * (e_approx ** (-self.lambtha))
             / self.factorial(k)
         )
+
+    def cdf(self, k):
+        """
+        Calculate the cumulative distribution function (CDF) for a given
+        number of successes k.
+
+        Args:
+            k (int or float): Number of successes
+
+        Returns:
+            float: CDF value for k
+        """
+        k = int(k)
+        if k < 0:
+            return 0
+
+        total = 0
+        for i in range(0, k + 1):
+            total += self.pmf(i)
+        return total
