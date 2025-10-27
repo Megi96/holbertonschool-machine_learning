@@ -1,25 +1,28 @@
 #!/usr/bin/env python3
 """
-Module that calculates the derivative of a polynomial.
+A function that calculates the derivative of a polynomial
 """
 
 
 def poly_derivative(poly):
     """
-    Calculate the derivative of a polynomial.
-
-    Args:
-        poly (list): List of coefficients representing a polynomial.
-
-    Returns:
-        list: The derivative of the polynomial.
+    Returns a list of the derivative
+    >>> poly = [5, 3, 0, 1]
+    >>> print(poly_derivative(poly))
+    [3, 0, 3]
     """
-    # Validate input
-    if not isinstance(poly, list) or len(poly) == 0:
+    if type(poly) is not list or poly == []:
         return None
-
-    if len(poly) == 1:
+    elif len(poly) < 2:
         return [0]
-
-    # Compute derivative for valid polynomials
-    return [i * poly[i] for i in range(1, len(poly))]
+    else:
+        exponent = 1
+        derivative = poly.copy()
+        derivative.pop(0)
+        for i in range(len(derivative)):
+            if type(derivative[i]) is int or type(derivative[i]) is float:
+                derivative[i] = derivative[i] * exponent
+                exponent += 1
+            else:
+                return None
+        return derivative
