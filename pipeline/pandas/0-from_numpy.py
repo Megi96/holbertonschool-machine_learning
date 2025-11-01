@@ -1,18 +1,16 @@
 #!/usr/bin/env python3
 """
-A module that creates a Pandas DataFrame from a Numpy array.
+A module that creates a Pandas DataFrame from a NumPy array.
 """
-
-import numpy as np
 import pandas as pd
 
 
 def from_numpy(array):
     """
-    Create a DataFrame from a Numpy array.
+    Create a DataFrame from a NumPy array.
 
     Args:
-        array (np.ndarray): The Numpy array to convert.
+        array (np.ndarray): The NumPy array to convert.
 
     Returns:
         pd.DataFrame: DataFrame with columns labeled A, B, C, ...
