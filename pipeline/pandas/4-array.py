@@ -3,8 +3,6 @@
 Module that converts selected DataFrame rows into a NumPy array.
 """
 
-import numpy as np
-
 
 def array(df):
     """
