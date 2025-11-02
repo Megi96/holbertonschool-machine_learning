@@ -50,3 +50,6 @@ df_daily.plot(figsize=(12, 6), title='Daily Cryptocurrency Data')
 plt.xlabel('Date')
 plt.ylabel('Value')
 plt.show()
+
+# Return the transformed DataFrame
+df_daily
