@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 
 from_file = __import__('2-from_file').from_file
 
+# Load the data
 df = from_file('coinbaseUSD_1-min_data_2014-12-01_to_2019-01-09.csv', ',')
 
 # Drop 'Weighted_Price' column if present
@@ -18,17 +19,17 @@ if 'Weighted_Price' in df.columns:
 df.rename(columns={'Timestamp': 'Date'}, inplace=True)
 df['Date'] = pd.to_datetime(df['Date'], unit='s')
 
-# Index on Date
+# Set 'Date' as index
 df.set_index('Date', inplace=True)
 
-# Fill missing Close with previous row value
+# Fill missing 'Close' with previous row
 df['Close'].fillna(method='ffill', inplace=True)
 
 # Fill missing High, Low, Open with the same row's Close
 for col in ['High', 'Low', 'Open']:
     df[col].fillna(df['Close'], inplace=True)
 
-# Fill missing volume columns with 0
+# Fill missing volumes with 0
 for col in ['Volume_(BTC)', 'Volume_(Currency)']:
     df[col].fillna(0, inplace=True)
 
@@ -45,11 +46,14 @@ df_daily = df.resample('D').agg({
     'Volume_(Currency)': 'sum'
 })
 
-# Plot the daily data
-df_daily.plot(figsize=(12, 6), title='Daily Cryptocurrency Data')
+# Plot the daily prices
+df_daily[['Open', 'High', 'Low', 'Close']].plot(
+    figsize=(12, 6),
+    title='Daily Cryptocurrency Prices'
+)
 plt.xlabel('Date')
-plt.ylabel('Value')
+plt.ylabel('Price')
 plt.show()
 
-# Return the transformed DataFrame
+# Return the daily DataFrame
 df_daily
