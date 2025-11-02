@@ -4,6 +4,7 @@ Module that concatenates two DataFrames (bitstamp and coinbase)
 after filtering and indexing by 'Timestamp'.
 """
 
+import pandas as pd
 index = __import__('10-index').index
 
 
@@ -24,17 +25,14 @@ def concat(df1, df2):
     Returns:
         pd.DataFrame: A concatenated DataFrame with labeled sources.
     """
-    # Ensure both are indexed by 'Timestamp'
+    # Ensure both DataFrames are indexed by 'Timestamp'
     df1 = index(df1)
     df2 = index(df2)
 
     # Filter df2 up to and including timestamp 1417411920
     df2 = df2.loc[:1417411920]
 
-    # Concatenate and label with keys
-    df = __import__('pandas').concat(
-        [df2, df1],
-        keys=['bitstamp', 'coinbase']
-    )
+    # Concatenate and label the sources
+    df = pd.concat([df2, df1], keys=['bitstamp', 'coinbase'])
 
     return df
