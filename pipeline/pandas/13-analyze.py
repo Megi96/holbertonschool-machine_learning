@@ -4,8 +4,6 @@ Module that computes descriptive statistics for a DataFrame,
 excluding the Timestamp column.
 """
 
-import pandas as pd
-
 
 def analyze(df):
     """
@@ -19,7 +17,7 @@ def analyze(df):
         (count, mean, std, min, 25%, 50%, 75%, max) for each column
         except 'Timestamp'.
     """
-    # Exclude Timestamp column
+    # Exclude Timestamp column if present
     df_numeric = df.drop(columns=['Timestamp'], errors='ignore')
 
     # Compute descriptive statistics
