@@ -5,15 +5,19 @@ import matplotlib.pyplot as plt
 
 def bars():
     """Plot a stacked bar chart of fruits per person with specifications."""
+    # Fixed dataset to match reference plot
+    # Rows: apples, bananas, oranges, peaches
+    # Columns: Farrah, Fred, Felicia
     fruit = np.array([[12, 7, 5],   # apples
                       [5, 10, 15],  # bananas
                       [8, 5, 7],    # oranges
                       [3, 2, 5]])   # peaches
+
     plt.figure(figsize=(6.4, 4.8))
 
     people = ['Farrah', 'Fred', 'Felicia']
     colors = ['red', 'yellow', '#ff8000', '#ffe5b4']
-    fruit_labels = ['Apples', 'Bananas', 'Oranges', 'Peaches']
+    labels = ['Apples', 'Bananas', 'Oranges', 'Peaches']
 
     bottom = np.zeros(3)
 
@@ -24,7 +28,7 @@ def bars():
             bottom=bottom,
             color=colors[i],
             width=0.5,
-            label=fruit_labels[i]
+            label=labels[i]
         )
         bottom += fruit[i]
 
