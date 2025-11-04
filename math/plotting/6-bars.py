@@ -1,57 +1,44 @@
 #!/usr/bin/env python3
-"""
-6-bars.py
-
-This module plots a stacked bar chart representing the number of fruits
-each person (Farrah, Fred, Felicia) possesses. The bars are stacked
-in the order: apples, bananas, oranges, peaches.
-Colors and labels follow the specifications.
-"""
-
+""" Creating a script with a bar chart"""
 import numpy as np
 import matplotlib.pyplot as plt
 
 
 def bars():
     """
-    Plot a stacked bar chart of fruits per person.
-
-    Uses a fixed dataset to match the reference plot exactly.
-
-    Stacking order:
-        apples -> red
-        bananas -> yellow
-        oranges -> #ff8000
-        peaches -> #ffe5b4
-
-    X-axis labels: Farrah, Fred, Felicia
-    Y-axis: 0 to 80, ticks every 10
-    Bar width: 0.5
-    Legend included
+    A function that returns a bar chart with 3 people and 4 fruits
     """
-    # Fixed dataset matching the reference
-    fruit = np.array([[12, 7, 5],   # apples
-                      [5, 10, 15],  # bananas
-                      [8, 5, 7],    # oranges
-                      [3, 2, 5]])   # peaches
+    np.random.seed(5)
+    fruit = np.random.randint(0, 20, (4, 3))
+    plt.figure(figsize=(6.4, 4.8))
 
-    names = ['Farrah', 'Fred', 'Felicia']
-    colors = ['red', 'yellow', '#ff8000', '#ffe5b4']
-    labels = ['Apples', 'Bananas', 'Oranges', 'Peaches']
+    x = ['Farrah', 'Fred', 'Felicia']
+    plt.bar(x, fruit[0], color='red', width=0.5, label='apples')
+    plt.bar(
+        x,
+        fruit[1],
+        bottom=fruit[0],
+        color='yellow',
+        width=0.5,
+        label='bananas')
+    plt.bar(
+        x,
+        fruit[2],
+        bottom=fruit[0] + fruit[1],
+        color='#ff8000',
+        width=0.5,
+        label='oranges')
+    plt.bar(
+        x,
+        fruit[3],
+        bottom=fruit[0] + fruit[1] + fruit[2],
+        color='#ffe5b4',
+        width=0.5,
+        label='peaches')
 
-    bottom = np.zeros(3)
-    for i in range(fruit.shape[0]):
-        plt.bar(names, fruit[i], bottom=bottom,
-                color=colors[i], label=labels[i], width=0.5)
-        bottom += fruit[i]
-
-    plt.title("Number of Fruit per Person")
-    plt.ylabel("Quantity of Fruit")
     plt.ylim(0, 80)
-    plt.yticks(np.arange(0, 81, 10))
+    plt.title('Number of Fruit per Person')
+    plt.ylabel('Quantity of Fruit')
+
     plt.legend()
     plt.show()
-
-
-if __name__ == '__main__':
-    bars()
