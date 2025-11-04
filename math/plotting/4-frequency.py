@@ -15,9 +15,11 @@ def frequency():
     plt.hist(student_grades, bins=range(0, 110, 10), edgecolor='black')
 
     # Add labels and title
+    plt.title('Project A')
     plt.xlabel('Grades')
     plt.ylabel('Number of Students')
-    plt.title('Project A')
-
+    plt.xlim(0, 100)
+    plt.ylim(0, 30)
+    plt.xticks(np.arange(0, 101, step=10))
     # Display plot
     plt.show()
