@@ -11,25 +11,19 @@ def bars():
                       [3, 2, 5]])   # peaches
 
     names = ['Farrah', 'Fred', 'Felicia']
-    fs = ['Apples', 'Bananas', 'Oranges', 'Peaches']
     colors = ['red', 'yellow', '#ff8000', '#ffe5b4']
+    labels = ['Apples', 'Bananas', 'Oranges', 'Peaches']
 
     bottom = np.zeros(3)
-    for i in range(len(fruit)):
-        plt.bar(
-            names,
-            fruit[i],
-            bottom=bottom,
-            color=colors[i],
-            label=fs[i],
-            width=0.5
-        )
+    for i in range(fruit.shape[0]):
+        plt.bar(names, fruit[i], bottom=bottom, color=colors[i],
+                label=labels[i], width=0.5)
         bottom += fruit[i]
 
     plt.title("Number of Fruit per Person")
     plt.ylabel("Quantity of Fruit")
-    plt.yticks(np.arange(0, 81, 10))
     plt.ylim(0, 80)
+    plt.yticks(np.arange(0, 81, 10))
     plt.legend()
     plt.show()
 
