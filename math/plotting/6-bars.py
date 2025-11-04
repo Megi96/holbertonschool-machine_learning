@@ -1,10 +1,13 @@
+#!/usr/bin/env python3
 import numpy as np
 import matplotlib.pyplot as plt
 
 
 def bars():
-    """Plot a stacked bar chart of fruits per person."""
+    """Plot a stacked bar chart of fruits per person with specifications."""
     np.random.seed(5)
+    # Rows: apples, bananas, oranges, peaches
+    # Columns: Farrah, Fred, Felicia
     fruit = np.random.randint(0, 20, (4, 3))
     plt.figure(figsize=(6.4, 4.8))
 
@@ -33,4 +36,5 @@ def bars():
     plt.show()
 
 
-bars()
+if __name__ == '__main__':
+    bars()
