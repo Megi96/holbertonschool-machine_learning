@@ -5,10 +5,10 @@ import matplotlib.pyplot as plt
 
 def bars():
     """Plot a stacked bar chart of fruits per person with specifications."""
-    np.random.seed(5)
-    # Rows: apples, bananas, oranges, peaches
-    # Columns: Farrah, Fred, Felicia
-    fruit = np.random.randint(0, 20, (4, 3))
+    fruit = np.array([[12, 7, 5],   # apples
+                      [5, 10, 15],  # bananas
+                      [8, 5, 7],    # oranges
+                      [3, 2, 5]])   # peaches
     plt.figure(figsize=(6.4, 4.8))
 
     people = ['Farrah', 'Fred', 'Felicia']
