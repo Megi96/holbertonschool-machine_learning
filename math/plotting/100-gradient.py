@@ -1,5 +1,7 @@
+#!/usr/bin/env python3
 import numpy as np
 import matplotlib.pyplot as plt
+
 
 def gradient():
     """Displays a scatter plot of sampled elevations on a mountain."""
