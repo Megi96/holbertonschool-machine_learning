@@ -22,7 +22,7 @@ def gradient():
     z = np.random.rand(2000) + 40 - np.sqrt(np.square(x) + np.square(y))
 
     plt.figure(figsize=(6.4, 4.8))
-    scatter = plt.scatter(x, y, c=z, cmap='terrain')
+    scatter = plt.scatter(x, y, c=z, cmap='viridis')
     plt.title('Mountain Elevation')
     plt.xlabel('x coordinate (m)')
     plt.ylabel('y coordinate (m)')
