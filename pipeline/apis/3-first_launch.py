@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
 """
-Script that retrieves and displays the first SpaceX launch.
-It prints the launch name, local date, rocket name, and launchpad
-information in the following format:
+Script to display the first SpaceX launch using the unofficial SpaceX API.
 
-<launch name> (<date>) <rocket name> - <launchpad name> (<locality>)
+Output format:
+<launch name> (<date>) <rocket name> - <launchpad name> (<launchpad locality>)
 """
 
 import requests
@@ -12,70 +11,45 @@ from datetime import datetime
 import pytz
 
 
-def fetch_json(url):
-    """
-    Fetch JSON data from a given URL.
-
-    Args:
-        url (str): API endpoint.
-
-    Returns:
-        dict or list: Parsed JSON response.
-    """
-    return requests.get(url).json()
-
-
 def get_first_launch():
     """
-    Retrieve the earliest SpaceX launch based on date_unix.
-
-    Returns:
-        dict: Launch data of the earliest SpaceX launch.
+    Fetches and displays the first SpaceX launch with formatted details:
+    - Launch name
+    - Local date and time
+    - Rocket name
+    - Launchpad name and locality
     """
-    launches = fetch_json("https://api.spacexdata.com/v4/launches")
-    launches_sorted = sorted(launches, key=lambda x: x["date_unix"])
-    return launches_sorted[0]
+    # Fetch all launches
+    launches_url = "https://api.spacexdata.com/v4/launches"
+    launches = requests.get(launches_url).json()
+
+    # Sort launches by date_unix
+    launches.sort(key=lambda x: x['date_unix'])
+
+    # Select the first launch
+    first = launches[0]
+
+    # Fetch rocket details
+    rocket_id = first['rocket']
+    rocket_url = f"https://api.spacexdata.com/v4/rockets/{rocket_id}"
+    rocket = requests.get(rocket_url).json()
+    rocket_name = rocket['name']
+
+    # Fetch launchpad details
+    launchpad_id = first['launchpad']
+    launchpad_url = f"https://api.spacexdata.com/v4/launchpads/{launchpad_id}"
+    launchpad = requests.get(launchpad_url).json()
+    launchpad_name = launchpad['name']
+    launchpad_locality = launchpad['locality']
+
+    # Convert UTC date to local time
+    utc_time = datetime.fromisoformat(first['date_utc'].replace("Z", "+00:00"))
+    local_time = utc_time.astimezone().isoformat()
+
+    # Print formatted output
+    print(f"{first['name']} ({local_time}) {rocket_name} - "
+          f"{launchpad_name} ({launchpad_locality})")
 
 
-def format_date(unix_timestamp):
-    """
-    Convert a UNIX timestamp to the local timezone ISO string.
-
-    Args:
-        unix_timestamp (int): UNIX timestamp.
-
-    Returns:
-        str: Local timezone ISO formatted date string.
-    """
-    utc_dt = datetime.fromtimestamp(unix_timestamp, pytz.utc)
-    local_dt = utc_dt.astimezone()
-    return local_dt.isoformat()
-
-
-def main():
-    """
-    Main function that gathers launch, rocket, and launchpad data,
-    formats them, and prints the requested output.
-    """
-    launch = get_first_launch()
-
-    rocket = fetch_json(
-        f"https://api.spacexdata.com/v4/rockets/{launch['rocket']}"
-    )
-    launchpad = fetch_json(
-        f"https://api.spacexdata.com/v4/launchpads/{launch['launchpad']}"
-    )
-
-    date_local = format_date(launch["date_unix"])
-
-    output = (
-        f"{launch['name']} ({date_local}) "
-        f"{rocket['name']} - {launchpad['name']} "
-        f"({launchpad['locality']})"
-    )
-
-    print(output)
-
-
-if __name__ == "__main__":
-    main()
+if __name__ == '__main__':
+    get_first_launch()
