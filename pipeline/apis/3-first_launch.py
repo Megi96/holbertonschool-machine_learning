@@ -1,48 +1,52 @@
 #!/usr/bin/env python3
 """
-Gets the earliest successful SpaceX launch and prints its information.
+Fetch the first upcoming SpaceX launch using the unofficial SpaceX API
+and print:
+
+<name> (<date_local>) <rocket name> - <launchpad name> (<locality>)
 """
 
 import requests
 
 
-def get_first_launch():
+def get_first_upcoming_launch():
     """
-    Fetches the earliest successful SpaceX launch and prints formatted information.
+    Retrieves and prints the first upcoming SpaceX launch.
     """
     url = "https://api.spacexdata.com/v4/launches"
     launches = requests.get(url).json()
 
-    valid_launches = [
-        l for l in launches
-        if l.get("success") is True
-        and l.get("upcoming") is False
-        and l.get("date_unix")
-        and l.get("rocket")
-        and l.get("launchpad")
+    # Filter only upcoming launches
+    upcoming = [
+        launch for launch in launches if launch.get("upcoming")
     ]
 
-    valid_launches.sort(key=lambda x: x["date_unix"])
-    first = valid_launches[0]
+    # Sort by date_unix
+    upcoming.sort(key=lambda x: x.get("date_unix", float("inf")))
 
-    launch_name = first.get("name")
-    date_local = first.get("date_local")
+    first = upcoming[0]
+
+    lname = first.get("name")
+    ldate = first.get("date_local")
     rocket_id = first.get("rocket")
     pad_id = first.get("launchpad")
 
-    rocket = requests.get(f"https://api.spacexdata.com/v4/rockets/{rocket_id}").json()
-    pad = requests.get(f"https://api.spacexdata.com/v4/launchpads/{pad_id}").json()
+    rocket_url = "https://api.spacexdata.com/v4/rockets/" + rocket_id
+    rocket = requests.get(rocket_url).json()
+
+    pad_url = "https://api.spacexdata.com/v4/launchpads/" + pad_id
+    pad = requests.get(pad_url).json()
 
     rocket_name = rocket.get("name")
     pad_name = pad.get("name")
     locality = pad.get("locality")
 
     output = (
-        f"{launch_name} ({date_local}) {rocket_name} - "
+        f"{lname} ({ldate}) {rocket_name} - "
         f"{pad_name} ({locality})"
     )
     print(output)
 
 
 if __name__ == "__main__":
-    get_first_launch()
+    get_first_upcoming_launch()
