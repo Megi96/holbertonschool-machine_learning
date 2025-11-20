@@ -1,44 +1,33 @@
 #!/usr/bin/env python3
 """
-Display number of launches per rocket using the SpaceX API.
+Displays the number of launches per rocket
 """
-
 import requests
 
-def rocket_launch_frequency():
-    """
-    Count successful past launches per rocket.
-    Matches Holberton's expected output.
-    """
-    # Get list of all launches
-    launches = requests.get("https://api.spacexdata.com/v4/launches").json()
-    # Get list of all rockets
-    rockets = requests.get("https://api.spacexdata.com/v4/rockets").json()
 
-    # Map rocket ID to rocket name
-    rocket_names = {r["id"]: r["name"] for r in rockets}
+if __name__ == '__main__':
 
-    freq = {}
+    rockets = {}
+
+    url = 'https://api.spacexdata.com/v4/launches'
+    r = requests.get(url)
+    launches = r.json()
 
     for launch in launches:
-        # Count only successful past launches
-        if (
-            launch.get("success") is True
-            and launch.get("upcoming") is False
-            and launch.get("rocket") in rocket_names
-        ):
-            rid = launch["rocket"]
-            freq[rid] = freq.get(rid, 0) + 1
+        rocket_id = launch['rocket']
+        url_r = "https://api.spacexdata.com/v4/rockets/{}".\
+            format(rocket_id)
+        req_r = requests.get(url_r)
+        json_r = req_r.json()
+        rocket_name = json_r['name']
 
-    # Create list of (rocket name, count)
-    result = [(rocket_names[rid], count) for rid, count in freq.items()]
+        if rocket_name in rockets.keys():
+            rockets[rocket_name] += 1
+        else:
+            rockets[rocket_name] = 1
 
-    # Sort by count descending, then name ascending
-    result.sort(key=lambda x: (-x[1], x[0]))
+    sort = sorted(rockets.items(), key=lambda x: x[0])
+    sort = sorted(sort, key=lambda x: x[1], reverse=True)
 
-    # Print results
-    for name, count in result:
-        print(f"{name}: {count}")
-
-if __name__ == "__main__":
-    rocket_launch_frequency()
+    for i in sort:
+        print("{}: {}".format(i[0], i[1]))
