@@ -1,26 +1,21 @@
 #!/usr/bin/env python3
-""" Get request from SpaceX"""
+"""Pipeline Api , Get request from SpaceX"""
 import requests
+from datetime import datetime
 
 
 if __name__ == '__main__':
-
-    object = dict()
-    url = 'https://api.spacexdata.com/v4/launches'
-    launches = requests.get(url).json()
-    for launch in launches:
-        urls = "https://api.spacexdata.com/v4/rockets/{}"
-        rocket_id = launch['rocket']
-        rocket_url = urls.format(rocket_id)
-        rocket_name = requests.get(rocket_url).json()['name']
-
-        if rocket_name in object.keys():
-            object[rocket_name] += 1
+    """pipeline api"""
+    url = "https://api.spacexdata.com/v4/launches"
+    r = requests.get(url)
+    rocket_dict = {"5e9d0d95eda69955f709d1eb": 0}
+    for launch in r.json():
+        if launch["rocket"] in rocket_dict:
+            rocket_dict[launch["rocket"]] += 1
         else:
-            object[rocket_name] = 1
-
-    keys = sorted(object.items(), key=lambda x: x[0])
-    keys = sorted(keys, key=lambda x: x[1], reverse=True)
-
-    for k in keys:
-        print("{}: {}".format(k[0], k[1]))
+            rocket_dict[launch["rocket"]] = 1
+    for key, value in sorted(rocket_dict.items(),
+                             key=lambda kv: kv[1], reverse=True):
+        rurl = "https://api.spacexdata.com/v4/rockets/" + key
+        req = requests.get(rurl)
+        print(req.json()["name"] + ": " + str(value))
