@@ -1,38 +1,43 @@
 #!/usr/bin/env python3
 """
-Script that displays the number of launches per rocket using SpaceX API.
+Script that displays the number of launches per rocket using SpaceX API
 """
 import requests
 
 
-if __name__ == "__main__":
-    launches = requests.get(
-        "https://api.spacexdata.com/v4/launches"
-    ).json()
+if __name__ == '__main__':
+    # Fetch all launches
+    url = "https://api.spacexdata.com/v4/launches"
+    response = requests.get(url)
+    launches = response.json()
 
-    counts = {}
+    # Dictionary to store rocket ID and count
+    rocket_counts = {}
+
+    # Count launches per rocket ID
     for launch in launches:
-        rocket_id = launch["rocket"]
-        counts[rocket_id] = counts.get(rocket_id, 0) + 1
+        rocket_id = launch.get('rocket')
+        if rocket_id:
+            rocket_counts[rocket_id] = rocket_counts.get(rocket_id, 0) + 1
 
-    rockets = {}
-    for rocket_id in counts:
-        rocket_data = requests.get(
-            f"https://api.spacexdata.com/v4/rockets/{rocket_id}"
-        ).json()
-        rockets[rocket_id] = rocket_data.get("name", "Unknown")
+    # Fetch rocket names
+    rocket_names = {}
+    rockets_url = "https://api.spacexdata.com/v4/rockets"
+    rockets_response = requests.get(rockets_url)
+    rockets = rockets_response.json()
 
-    # Tuples list
-    launch_list = [
-        (rockets[rid], count) for rid, count in counts.items()
-    ]
+    for rocket in rockets:
+        rocket_names[rocket['id']] = rocket['name']
 
-    def sort_key(item):
-        """Return a tuple for sorting: (-count, name)"""
-        name, count = item
-        return -count, name
+    # Create list of (name, count) tuples
+    results = []
+    for rocket_id, count in rocket_counts.items():
+        name = rocket_names.get(rocket_id, "Unknown")
+        results.append((name, count))
 
-    launch_list.sort(key=sort_key)
+    # Sort by count (descending), then by name (ascending)
+    results.sort(key=lambda x: (-x[1], x[0]))
 
-    for rocket_name, count in launch_list:
-        print(f"{rocket_name}: {count}")
+    # Print results
+    for name, count in results:
+        print("{}: {}".format(name, count))
