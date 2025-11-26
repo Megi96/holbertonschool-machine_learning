@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Number of launches per rocket using SpaceX API
+Finding the number of launches per rocket using SpaceX API
 """
 import requests
 
