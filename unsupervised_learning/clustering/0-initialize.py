@@ -19,7 +19,7 @@ def initialize(X, k):
     along each dimension in d
 
     Returns: a numpy.ndarray of shape (k, d) containing the initialized
-    centroids for each cluster, or None on failure
+    centroids for each cluster, or None on fail
     """
 
     if not isinstance(X, np.ndarray) or len(X.shape) != 2:
