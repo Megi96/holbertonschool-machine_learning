@@ -4,7 +4,7 @@ import numpy as np
 
 def initialize(X, k):
     """
-    Initializes cluster centroids for K-means
+    Initializes cluster centroids for K-means algorithm
     """
     # Validation
     if not isinstance(X, np.ndarray) or X.ndim != 2:
