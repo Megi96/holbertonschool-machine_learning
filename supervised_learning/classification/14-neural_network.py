@@ -9,12 +9,41 @@ import numpy as np
 
 class NeuralNetwork:
     """
-    Defines a neural network with one hidden layer.
+    Defines a neural network with one hidden layer performing binary classification.
+
+    Attributes
+    ----------
+    __W1 : numpy.ndarray
+        Weights for the hidden layer.
+    __b1 : numpy.ndarray
+        Biases for the hidden layer.
+    __A1 : float or numpy.ndarray
+        Activated output for the hidden layer.
+    __W2 : numpy.ndarray
+        Weights for the output neuron.
+    __b2 : float
+        Bias for the output neuron.
+    __A2 : float or numpy.ndarray
+        Activated output for the output neuron (prediction).
     """
 
     def __init__(self, nx, nodes):
         """
-        Initialize a NeuralNetwork instance.
+        Initialize the neural network.
+
+        Parameters
+        ----------
+        nx : int
+            Number of input features.
+        nodes : int
+            Number of nodes in the hidden layer.
+
+        Raises
+        ------
+        TypeError
+            If nx or nodes is not an integer.
+        ValueError
+            If nx or nodes is less than 1.
         """
         if not isinstance(nx, int):
             raise TypeError("nx must be an integer")
@@ -36,29 +65,48 @@ class NeuralNetwork:
 
     @property
     def W1(self):
+        """Weights of the hidden layer."""
         return self.__W1
 
     @property
     def b1(self):
+        """Biases of the hidden layer."""
         return self.__b1
 
     @property
     def A1(self):
+        """Activated output of the hidden layer."""
         return self.__A1
 
     @property
     def W2(self):
+        """Weights of the output neuron."""
         return self.__W2
 
     @property
     def b2(self):
+        """Bias of the output neuron."""
         return self.__b2
 
     @property
     def A2(self):
+        """Activated output of the output neuron."""
         return self.__A2
 
     def forward_prop(self, X):
+        """
+        Perform forward propagation of the neural network.
+
+        Parameters
+        ----------
+        X : numpy.ndarray
+            Input data of shape (nx, m).
+
+        Returns
+        -------
+        tuple
+            Activated outputs (A1, A2) for the hidden layer and output neuron.
+        """
         Z1 = np.matmul(self.__W1, X) + self.__b1
         self.__A1 = 1 / (1 + np.exp(-Z1))
 
@@ -68,6 +116,21 @@ class NeuralNetwork:
         return self.__A1, self.__A2
 
     def cost(self, Y, A):
+        """
+        Calculate the cost using logistic regression.
+
+        Parameters
+        ----------
+        Y : numpy.ndarray
+            Correct labels of shape (1, m).
+        A : numpy.ndarray
+            Activated output of the output neuron.
+
+        Returns
+        -------
+        float
+            Logistic regression cost.
+        """
         m = Y.shape[1]
         return -np.sum(
             Y * np.log(A) +
@@ -75,12 +138,43 @@ class NeuralNetwork:
         ) / m
 
     def evaluate(self, X, Y):
+        """
+        Evaluate the neural network's predictions.
+
+        Parameters
+        ----------
+        X : numpy.ndarray
+            Input data of shape (nx, m).
+        Y : numpy.ndarray
+            Correct labels of shape (1, m).
+
+        Returns
+        -------
+        tuple
+            The predicted labels (0 or 1) and the cost of the network.
+        """
         _, A2 = self.forward_prop(X)
         cost = self.cost(Y, A2)
         prediction = np.where(A2 >= 0.5, 1, 0)
         return prediction, cost
 
     def gradient_descent(self, X, Y, A1, A2, alpha=0.05):
+        """
+        Perform one pass of gradient descent on the network.
+
+        Parameters
+        ----------
+        X : numpy.ndarray
+            Input data of shape (nx, m).
+        Y : numpy.ndarray
+            Correct labels of shape (1, m).
+        A1 : numpy.ndarray
+            Activated output of hidden layer.
+        A2 : numpy.ndarray
+            Activated output of output neuron.
+        alpha : float
+            Learning rate.
+        """
         m = Y.shape[1]
 
         dZ2 = A2 - Y
@@ -98,7 +192,30 @@ class NeuralNetwork:
 
     def train(self, X, Y, iterations=5000, alpha=0.05):
         """
-        Train the neural network.
+        Train the neural network over a number of iterations.
+
+        Parameters
+        ----------
+        X : numpy.ndarray
+            Input data of shape (nx, m).
+        Y : numpy.ndarray
+            Correct labels of shape (1, m).
+        iterations : int, optional
+            Number of training iterations (default 5000).
+        alpha : float, optional
+            Learning rate (default 0.05).
+
+        Raises
+        ------
+        TypeError
+            If iterations is not an integer or alpha is not a float.
+        ValueError
+            If iterations or alpha are not positive.
+
+        Returns
+        -------
+        tuple
+            The predicted labels and cost after training.
         """
         if not isinstance(iterations, int):
             raise TypeError("iterations must be an integer")
