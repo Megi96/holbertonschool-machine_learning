@@ -1,16 +1,16 @@
 #!/usr/bin/env python3
 """
-Defines a NeuralNetwork class with one hidden layer
-performing binary classification.
+Defines a NeuralNetwork class with a single hidden layer that performs
+binary classification.
 """
-
 
 import numpy as np
 
 
 class NeuralNetwork:
     """
-    Defines a neural network with one hidden layer performing binary classification.
+    Defines a neural network with one hidden layer performing binary
+    classification.
 
     Attributes
     ----------
@@ -59,7 +59,6 @@ class NeuralNetwork:
         self.__W1 = np.random.randn(nodes, nx)
         self.__b1 = np.zeros((nodes, 1))
         self.__A1 = 0
-
         self.__W2 = np.random.randn(1, nodes)
         self.__b2 = 0
         self.__A2 = 0
@@ -106,14 +105,13 @@ class NeuralNetwork:
         Returns
         -------
         tuple
-            Activated outputs (A1, A2) for the hidden layer and output neuron.
+            Activated outputs (A1, A2) for the hidden layer and
+            output neuron.
         """
         Z1 = np.matmul(self.__W1, X) + self.__b1
         self.__A1 = 1 / (1 + np.exp(-Z1))
-
         Z2 = np.matmul(self.__W2, self.__A1) + self.__b2
         self.__A2 = 1 / (1 + np.exp(-Z2))
-
         return self.__A1, self.__A2
 
     def cost(self, Y, A):
@@ -133,10 +131,7 @@ class NeuralNetwork:
             Logistic regression cost.
         """
         m = Y.shape[1]
-        return -np.sum(
-            Y * np.log(A) +
-            (1 - Y) * np.log(1.0000001 - A)
-        ) / m
+        return -np.sum(Y * np.log(A) + (1 - Y) * np.log(1.0000001 - A)) / m
 
     def evaluate(self, X, Y):
         """
@@ -177,15 +172,12 @@ class NeuralNetwork:
             Learning rate.
         """
         m = Y.shape[1]
-
         dZ2 = A2 - Y
         dW2 = np.matmul(dZ2, A1.T) / m
         db2 = np.sum(dZ2, axis=1, keepdims=True) / m
-
         dZ1 = np.matmul(self.__W2.T, dZ2) * A1 * (1 - A1)
         dW1 = np.matmul(dZ1, X.T) / m
         db1 = np.sum(dZ1, axis=1, keepdims=True) / m
-
         self.__W2 -= alpha * dW2
         self.__b2 -= alpha * db2
         self.__W1 -= alpha * dW1
@@ -222,7 +214,6 @@ class NeuralNetwork:
             raise TypeError("iterations must be an integer")
         if iterations < 1:
             raise ValueError("iterations must be a positive integer")
-
         if not isinstance(alpha, float):
             raise TypeError("alpha must be a float")
         if alpha <= 0:
