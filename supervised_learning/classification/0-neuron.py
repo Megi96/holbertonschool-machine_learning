@@ -1,4 +1,8 @@
 #!/usr/bin/env python3
+"""
+Defines a Neuron class for binary classification.
+"""
+
 import numpy as np
 
 
@@ -14,7 +18,7 @@ class Neuron:
         Parameters
         ----------
         nx : int
-            The number of input features to the neuron.
+            Number of input features.
 
         Raises
         ------
