@@ -4,6 +4,7 @@ Defines a NeuralNetwork class with one hidden layer
 performing binary classification.
 """
 
+
 import numpy as np
 
 
