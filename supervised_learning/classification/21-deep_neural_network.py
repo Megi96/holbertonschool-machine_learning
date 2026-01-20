@@ -77,6 +77,30 @@ class DeepNeuralNetwork:
         return predictions, cost
 
     def gradient_descent(self, Y, cache, alpha=0.05):
+    """Performs one pass of gradient descent on the network."""
+    m = Y.shape[1]
+    L = self.__L
+    dZ = None
+
+    # Loop over layers in reverse order
+    for layer_idx in reversed(range(L)):
+        A = cache["A" + str(layer_idx + 1)]
+        A_prev = cache["A" + str(layer_idx)]
+        W = self.__weights["W" + str(layer_idx + 1)]
+
+        # Last layer
+        if layer_idx == L - 1:
+            dZ = A - Y
+        else:
+            dZ = np.dot(self.__weights["W" + str(layer_idx + 2)].T, dZ) * (A * (1 - A))
+
+        dW = np.dot(dZ, A_prev.T) / m
+        db = np.sum(dZ, axis=1, keepdims=True) / m
+
+        self.__weights["W" + str(layer_idx + 1)] -= alpha * dW
+        self.__weights["b" + str(layer_idx + 1)] -= alpha * d
+    
+    def gradient_descent(self, Y, cache, alpha=0.05):
         """Performs one pass of gradient descent on the network."""
         m = Y.shape[1]
         L = self.__L
