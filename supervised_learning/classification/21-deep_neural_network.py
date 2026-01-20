@@ -4,12 +4,12 @@ import numpy as np
 
 
 class DeepNeuralNetwork:
-    """Defines a deep neural network for binary classification"""
+    """Defines a deep neural network performing binary classification"""
 
     def __init__(self, nx, layers):
-        """Class constructor
+        """Constructor
         nx: number of input features
-        layers: list of nodes in each layer
+        layers: list of number of nodes per layer
         """
         if not isinstance(nx, int):
             raise TypeError("nx must be an integer")
@@ -22,21 +22,16 @@ class DeepNeuralNetwork:
         self.__cache = {}
         self.__weights = {}
 
-        # Single loop: validate layers & initialize weights/biases
-        for idx in range(self.__L):
-            layer_size = layers[idx]
-            if not isinstance(layer_size, int) or layer_size <= 0:
+        # Initialize weights/biases using single loop
+        for l in range(self.__L):
+            if not isinstance(layers[l], int) or layers[l] <= 0:
                 raise TypeError("layers must be a list of positive integers")
-
-            prev_size = nx if idx == 0 else layers[idx - 1]
-            w_key = "W" + str(idx + 1)
-            b_key = "b" + str(idx + 1)
-
-            # He initialization
-            self.__weights[w_key] = (
-                np.random.randn(layer_size, prev_size) * np.sqrt(2 / prev_size)
-            )
-            self.__weights[b_key] = np.zeros((layer_size, 1))
+            w_key = "W" + str(l + 1)
+            b_key = "b" + str(l + 1)
+            input_size = nx if l == 0 else layers[l - 1]
+            # He et al. initialization
+            self.__weights[w_key] = np.random.randn(layers[l], input_size) * np.sqrt(2 / input_size)
+            self.__weights[b_key] = np.zeros((layers[l], 1))
 
     @property
     def L(self):
@@ -45,7 +40,7 @@ class DeepNeuralNetwork:
 
     @property
     def cache(self):
-        """Dictionary of intermediate values"""
+        """Dictionary of all intermediary values"""
         return self.__cache
 
     @property
@@ -54,52 +49,43 @@ class DeepNeuralNetwork:
         return self.__weights
 
     def forward_prop(self, X):
-        """Performs forward propagation"""
+        """Forward propagation using sigmoid"""
         self.__cache["A0"] = X
-        for idx in range(self.__L):
-            W = self.__weights["W" + str(idx + 1)]
-            b = self.__weights["b" + str(idx + 1)]
-            A_prev = self.__cache["A" + str(idx)]
-
+        for l in range(self.__L):
+            W = self.__weights["W" + str(l + 1)]
+            b = self.__weights["b" + str(l + 1)]
+            A_prev = self.__cache["A" + str(l)]
             Z = np.dot(W, A_prev) + b
-            A = 1 / (1 + np.exp(-Z))  # Sigmoid activation
-            self.__cache["A" + str(idx + 1)] = A
-
+            A = 1 / (1 + np.exp(-Z))
+            self.__cache["A" + str(l + 1)] = A
         return A, self.__cache
 
     def cost(self, Y, A):
-        """Calculates logistic regression cost"""
+        """Logistic regression cost"""
         m = Y.shape[1]
-        cost = -(1 / m) * np.sum(
-            Y * np.log(A) + (1 - Y) * np.log(1.0000001 - A)
-        )
+        cost = -(1 / m) * np.sum(Y * np.log(A) + (1 - Y) * np.log(1.0000001 - A))
         return cost
 
     def evaluate(self, X, Y):
-        """Evaluates the network’s predictions"""
+        """Evaluate predictions"""
         A, _ = self.forward_prop(X)
-        prediction = np.where(A >= 0.5, 1, 0)
-        return prediction, self.cost(Y, A)
+        return np.where(A >= 0.5, 1, 0), self.cost(Y, A)
 
     def gradient_descent(self, Y, cache, alpha=0.05):
-        """Performs one pass of gradient descent"""
+        """One step of gradient descent"""
         m = Y.shape[1]
         L = self.__L
         dZ = None
 
-        # Loop over layers in reverse
-        for idx in reversed(range(L)):
-            A = cache["A" + str(idx + 1)]
-            A_prev = cache["A" + str(idx)]
-            W = self.__weights["W" + str(idx + 1)]
-
-            if idx == L - 1:
+        for l in reversed(range(L)):
+            A = cache["A" + str(l + 1)]
+            A_prev = cache["A" + str(l)]
+            W = self.__weights["W" + str(l + 1)]
+            if l == L - 1:
                 dZ = A - Y
             else:
-                dZ = np.dot(self.__weights["W" + str(idx + 2)].T, dZ) * (A * (1 - A))
-
+                dZ = np.dot(self.__weights["W" + str(l + 2)].T, dZ) * (A * (1 - A))
             dW = np.dot(dZ, A_prev.T) / m
             db = np.sum(dZ, axis=1, keepdims=True) / m
-
-            self.__weights["W" + str(idx + 1)] -= alpha * dW
-            self.__weights["b" + str(idx + 1)] -= alpha * db
+            self.__weights["W" + str(l + 1)] -= alpha * dW
+            self.__weights["b" + str(l + 1)] -= alpha * db
