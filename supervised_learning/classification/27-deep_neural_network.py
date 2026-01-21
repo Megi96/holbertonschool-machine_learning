@@ -14,8 +14,8 @@ class DeepNeuralNetwork:
             raise TypeError("nx must be an integer")
         if nx < 1:
             raise ValueError("nx must be a positive integer")
-        if not isinstance(layers, list) or len(layers) == 0 or \
-           not all(isinstance(x, int) and x > 0 for x in layers):
+        if (not isinstance(layers, list) or len(layers) == 0 or
+                not all(isinstance(x, int) and x > 0 for x in layers)):
             raise TypeError("layers must be a list of positive integers")
 
         self.nx = nx
@@ -24,12 +24,13 @@ class DeepNeuralNetwork:
         self.__cache = {}
         self.__weights = {}
 
-        for l in range(1, self.L + 1):
-            layer_size = layers[l - 1]
-            prev_size = nx if l == 1 else layers[l - 2]
-            self.__weights['W' + str(l)] = (np.random.randn(layer_size, prev_size) *
-                                            np.sqrt(2 / prev_size))
-            self.__weights['b' + str(l)] = np.zeros((layer_size, 1))
+        for layer_idx in range(1, self.L + 1):
+            layer_size = layers[layer_idx - 1]
+            prev_size = nx if layer_idx == 1 else layers[layer_idx - 2]
+            self.__weights['W' + str(layer_idx)] = (
+                np.random.randn(layer_size, prev_size) * np.sqrt(2 / prev_size)
+            )
+            self.__weights['b' + str(layer_idx)] = np.zeros((layer_size, 1))
 
     @property
     def cache(self):
@@ -41,18 +42,18 @@ class DeepNeuralNetwork:
 
     def forward_prop(self, X):
         self.__cache['A0'] = X
-        for l in range(1, self.L + 1):
-            Wl = self.__weights['W' + str(l)]
-            bl = self.__weights['b' + str(l)]
-            Al_prev = self.__cache['A' + str(l - 1)]
-            Zl = np.dot(Wl, Al_prev) + bl
-            if l != self.L:  # hidden layers: sigmoid
-                Al = 1 / (1 + np.exp(-Zl))
-            else:  # output layer: softmax
-                t = np.exp(Zl - np.max(Zl, axis=0, keepdims=True))
-                Al = t / np.sum(t, axis=0, keepdims=True)
-            self.__cache['A' + str(l)] = Al
-        return Al, self.__cache
+        for layer_idx in range(1, self.L + 1):
+            W = self.__weights['W' + str(layer_idx)]
+            b = self.__weights['b' + str(layer_idx)]
+            A_prev = self.__cache['A' + str(layer_idx - 1)]
+            Z = np.dot(W, A_prev) + b
+            if layer_idx != self.L:
+                A = 1 / (1 + np.exp(-Z))
+            else:
+                t = np.exp(Z - np.max(Z, axis=0, keepdims=True))
+                A = t / np.sum(t, axis=0, keepdims=True)
+            self.__cache['A' + str(layer_idx)] = A
+        return A, self.__cache
 
     def cost(self, Y, A):
         m = Y.shape[1]
@@ -66,18 +67,18 @@ class DeepNeuralNetwork:
     def gradient_descent(self, Y, cache, alpha=0.05):
         m = Y.shape[1]
         dZ = cache['A' + str(self.L)] - Y
-        for l in reversed(range(1, self.L + 1)):
-            Al_prev = cache['A' + str(l - 1)]
-            Wl = self.__weights['W' + str(l)]
+        for layer_idx in reversed(range(1, self.L + 1)):
+            A_prev = cache['A' + str(layer_idx - 1)]
+            W = self.__weights['W' + str(layer_idx)]
 
-            dW = np.dot(dZ, Al_prev.T) / m
+            dW = np.dot(dZ, A_prev.T) / m
             db = np.sum(dZ, axis=1, keepdims=True) / m
 
-            if l > 1:
-                dZ = np.dot(Wl.T, dZ) * (Al_prev * (1 - Al_prev))
+            if layer_idx > 1:
+                dZ = np.dot(W.T, dZ) * (A_prev * (1 - A_prev))
 
-            self.__weights['W' + str(l)] -= alpha * dW
-            self.__weights['b' + str(l)] -= alpha * db
+            self.__weights['W' + str(layer_idx)] -= alpha * dW
+            self.__weights['b' + str(layer_idx)] -= alpha * db
 
     def train(self, X, Y, iterations=5000, alpha=0.05):
         if not isinstance(iterations, int):
@@ -89,7 +90,7 @@ class DeepNeuralNetwork:
         if alpha <= 0:
             raise ValueError("alpha must be positive")
 
-        for i in range(iterations):
+        for _ in range(iterations):
             self.forward_prop(X)
             self.gradient_descent(Y, self.__cache, alpha)
 
