@@ -97,7 +97,8 @@ class DeepNeuralNetwork:
             self.__weights["W{}".format(i)] -= alpha * dW
             self.__weights["b{}".format(i)] -= alpha * db
 
-    def train(self, X, Y, iterations=5000, alpha=0.05, graph=False):
+    def train(self, X, Y, iterations=5000, alpha=0.05,
+              verbose=True, graph=False):
         """Trains the deep neural network"""
         if not isinstance(iterations, int):
             raise TypeError("iterations must be an integer")
@@ -107,13 +108,31 @@ class DeepNeuralNetwork:
             raise TypeError("alpha must be a float")
         if alpha <= 0:
             raise ValueError("alpha must be positive")
+        if not isinstance(verbose, bool):
+            raise TypeError("verbose must be a boolean")
+        if not isinstance(graph, bool):
+            raise TypeError("graph must be a boolean")
 
+        costs = []
         for i in range(iterations + 1):
             A, _ = self.forward_prop(X)
-            if graph and (i % 100 == 0 or i == iterations):
-                print(f"Cost after {i} iterations: {self.cost(Y, A)}")
+            cost = self.cost(Y, A)
+
+            if verbose and (i % 100 == 0 or i == iterations):
+                print(f"Cost after {i} iterations: {cost}")
+            if graph:
+                costs.append(cost)
+
             if i < iterations:
                 self.gradient_descent(Y, self.__cache, alpha)
+
+        if graph:
+            import matplotlib.pyplot as plt
+            plt.plot(np.arange(0, iterations + 1), costs)
+            plt.xlabel("iteration")
+            plt.ylabel("cost")
+            plt.title("Training Cost")
+            plt.show()
 
         return self.evaluate(X, Y)
 
