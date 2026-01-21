@@ -15,8 +15,13 @@ def one_hot_decode(one_hot):
     Returns:
         numpy.ndarray: vector of labels with shape (m,) or None on failure
     """
+    if not isinstance(one_hot, np.ndarray):
+        return None
+
+    if len(one_hot.shape) != 2:
+        return None
+
     try:
-        # For each column (sample), get the index of the 1
         labels = np.argmax(one_hot, axis=0)
         return labels
     except Exception:
