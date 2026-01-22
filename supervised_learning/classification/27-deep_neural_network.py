@@ -18,19 +18,25 @@ class DeepNeuralNetwork:
                 not all(isinstance(x, int) and x > 0 for x in layers)):
             raise TypeError("layers must be a list of positive integers")
 
-        self.nx = nx
-        self.layers = layers
-        self.L = len(layers)
+        self.__L = len(layers)
         self.__cache = {}
         self.__weights = {}
 
-        for layer_idx in range(1, self.L + 1):
+        for layer_idx in range(1, self.__L + 1):
             layer_size = layers[layer_idx - 1]
             prev_size = nx if layer_idx == 1 else layers[layer_idx - 2]
-            self.__weights['W' + str(layer_idx)] = (
-                np.random.randn(layer_size, prev_size) * np.sqrt(2 / prev_size)
+
+            self.__weights["W{}".format(layer_idx)] = (
+                np.random.randn(layer_size, prev_size) *
+                np.sqrt(1 / prev_size)
             )
-            self.__weights['b' + str(layer_idx)] = np.zeros((layer_size, 1))
+            self.__weights["b{}".format(layer_idx)] = np.zeros(
+                (layer_size, 1)
+            )
+
+    @property
+    def L(self):
+        return self.__L
 
     @property
     def cache(self):
@@ -41,18 +47,23 @@ class DeepNeuralNetwork:
         return self.__weights
 
     def forward_prop(self, X):
-        self.__cache['A0'] = X
-        for layer_idx in range(1, self.L + 1):
-            W = self.__weights['W' + str(layer_idx)]
-            b = self.__weights['b' + str(layer_idx)]
-            A_prev = self.__cache['A' + str(layer_idx - 1)]
-            Z = np.dot(W, A_prev) + b
-            if layer_idx != self.L:
+        self.__cache["A0"] = X
+
+        for layer_idx in range(1, self.__L + 1):
+            W = self.__weights["W{}".format(layer_idx)]
+            b = self.__weights["b{}".format(layer_idx)]
+            A_prev = self.__cache["A{}".format(layer_idx - 1)]
+
+            Z = np.matmul(W, A_prev) + b
+
+            if layer_idx != self.__L:
                 A = 1 / (1 + np.exp(-Z))
             else:
-                t = np.exp(Z - np.max(Z, axis=0, keepdims=True))
-                A = t / np.sum(t, axis=0, keepdims=True)
-            self.__cache['A' + str(layer_idx)] = A
+                exp_Z = np.exp(Z - np.max(Z, axis=0, keepdims=True))
+                A = exp_Z / np.sum(exp_Z, axis=0, keepdims=True)
+
+            self.__cache["A{}".format(layer_idx)] = A
+
         return A, self.__cache
 
     def cost(self, Y, A):
@@ -66,21 +77,23 @@ class DeepNeuralNetwork:
 
     def gradient_descent(self, Y, cache, alpha=0.05):
         m = Y.shape[1]
-        dZ = cache['A' + str(self.L)] - Y
-        for layer_idx in reversed(range(1, self.L + 1)):
-            A_prev = cache['A' + str(layer_idx - 1)]
-            W = self.__weights['W' + str(layer_idx)]
+        dZ = cache["A{}".format(self.__L)] - Y
 
-            dW = np.dot(dZ, A_prev.T) / m
+        for layer_idx in reversed(range(1, self.__L + 1)):
+            A_prev = cache["A{}".format(layer_idx - 1)]
+            W = self.__weights["W{}".format(layer_idx)]
+
+            dW = np.matmul(dZ, A_prev.T) / m
             db = np.sum(dZ, axis=1, keepdims=True) / m
 
             if layer_idx > 1:
-                dZ = np.dot(W.T, dZ) * (A_prev * (1 - A_prev))
+                dZ = np.matmul(W.T, dZ) * (A_prev * (1 - A_prev))
 
-            self.__weights['W' + str(layer_idx)] -= alpha * dW
-            self.__weights['b' + str(layer_idx)] -= alpha * db
+            self.__weights["W{}".format(layer_idx)] -= alpha * dW
+            self.__weights["b{}".format(layer_idx)] -= alpha * db
 
-    def train(self, X, Y, iterations=5000, alpha=0.05):
+    def train(self, X, Y, iterations=5000, alpha=0.05,
+              step=100, graph=True):
         if not isinstance(iterations, int):
             raise TypeError("iterations must be an integer")
         if iterations <= 0:
@@ -94,20 +107,20 @@ class DeepNeuralNetwork:
             self.forward_prop(X)
             self.gradient_descent(Y, self.__cache, alpha)
 
-        A_final, _ = self.forward_prop(X)
-        cost_final = self.cost(Y, A_final)
-        return A_final, cost_final
+        A, _ = self.forward_prop(X)
+        cost = self.cost(Y, A)
+        return A, cost
 
     def save(self, filename):
-        if not filename.endswith('.pkl'):
-            filename += '.pkl'
-        with open(filename, 'wb') as f:
+        if not filename.endswith(".pkl"):
+            filename += ".pkl"
+        with open(filename, "wb") as f:
             pickle.dump(self, f)
 
     @staticmethod
     def load(filename):
         try:
-            with open(filename, 'rb') as f:
+            with open(filename, "rb") as f:
                 return pickle.load(f)
         except FileNotFoundError:
             return None
