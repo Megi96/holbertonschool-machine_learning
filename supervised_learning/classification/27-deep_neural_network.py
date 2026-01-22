@@ -93,7 +93,7 @@ class DeepNeuralNetwork:
             self.__weights["b{}".format(layer_idx)] -= alpha * db
 
     def train(self, X, Y, iterations=5000, alpha=0.05,
-              step=100, graph=True):
+              step=100, graph=True, verbose=True):
         if not isinstance(iterations, int):
             raise TypeError("iterations must be an integer")
         if iterations <= 0:
