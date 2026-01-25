@@ -13,10 +13,11 @@ def one_hot(labels, classes=None):
 
     Parameters:
     - labels: list or array-like of integers, shape (m,)
-    - classes: int, optional, number of classes. If None, inferred from labels
+    - classes: int, optional, number of classes. If None, inferred.
 
     Returns:
     - one_hot_matrix: Keras tensor, shape (m, classes)
     """
-    labels = K.utils.to_categorical(labels, num_classes=classes, dtype='float32')
-    return labels
+    one_hot_matrix = K.utils.to_categorical(labels, num_classes=classes,
+                                            dtype='float32')
+    return one_hot_matrix
