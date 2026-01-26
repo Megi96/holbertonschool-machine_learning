@@ -1,24 +1,38 @@
 #!/usr/bin/env python3
 """
 4-train.py
+Module that contains the train_model function to train a Keras model
+using mini-batch gradient descent.
 """
 
 def train_model(network, data, labels, batch_size, epochs,
                 verbose=True, shuffle=False):
     """
-    Trains a model using mini-batch gradient descent
+    Trains a Keras model using mini-batch gradient descent.
 
-    network: the model to train
-    data: numpy.ndarray of shape (m, nx) with input data
-    labels: one-hot numpy.ndarray of shape (m, classes)
-    batch_size: size of the batch
-    epochs: number of epochs
-    verbose: boolean, whether to print output
-    shuffle: boolean, whether to shuffle data every epoch
+    Parameters
+    ----------
+    network : keras.Model
+        The compiled Keras model to train.
+    data : numpy.ndarray of shape (m, nx)
+        Input data for training.
+    labels : numpy.ndarray of shape (m, classes)
+        One-hot encoded labels for the training data.
+    batch_size : int
+        The number of samples per batch of computation.
+    epochs : int
+        Number of epochs (full passes through the data).
+    verbose : bool, optional
+        Whether to print training progress (default is True).
+    shuffle : bool, optional
+        Whether to shuffle the training data before each epoch
+        (default is False, for reproducibility).
 
-    Returns: the History object generated after training
+    Returns
+    -------
+    History
+        A Keras History object generated after training the model.
     """
-
     history = network.fit(
         data,
         labels,
