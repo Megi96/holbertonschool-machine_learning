@@ -4,12 +4,15 @@
 Contains functions to save and load a Keras model's weights.
 """
 
+import tensorflow.keras as K
+
+
 def save_weights(network, filename, save_format='keras'):
     """
     Saves a model's weights to a file.
 
     Parameters:
-    network (keras.Model): the model whose weights should be saved
+    network (K.Model): the model whose weights should be saved
     filename (str): path to the file where the weights will be saved
     save_format (str): format in which the weights should be saved
 
@@ -24,7 +27,7 @@ def load_weights(network, filename):
     Loads weights into a model.
 
     Parameters:
-    network (keras.Model): the model to which the weights will be loaded
+    network (K.Model): the model to which the weights will be loaded
     filename (str): path to the file containing the weights
 
     Returns:
