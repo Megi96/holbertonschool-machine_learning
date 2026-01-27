@@ -11,7 +11,7 @@ def save_weights(network, filename, save_format='keras'):
     Parameters:
     - network: the Keras model whose weights should be saved
     - filename: the path to save the weights
-    - save_format: 'keras' (HDF5) or 'tf' (TensorFlow SavedModel)
+    - save_format: 'keras' (HDF5) or 'tf' (TensorFlow checkpoint)
     
     Returns: None
     """
