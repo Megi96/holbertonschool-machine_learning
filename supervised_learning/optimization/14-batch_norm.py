@@ -1,28 +1,55 @@
 #!/usr/bin/env python3
-"""Batch Normalization Layer for TensorFlow"""
+"""Creates a batch normalization layer using TensorFlow"""
 
 import tensorflow as tf
 
 
 def create_batch_norm_layer(prev, n, activation):
-    """Creates a batch normalization layer for a neural network."""
-    tf.random.set_seed(0)
+    """
+    Creates a batch normalization layer for a neural network in tensorflow.
 
-    dense_layer = tf.keras.layers.Dense(
-        n,
-        activation=None,
-        kernel_initializer=tf.keras.initializers.VarianceScaling(
-            scale=1.0, mode='fan_avg', distribution='uniform', seed=0
-        ),
+    Parameters:
+    -----------
+    prev : tf.Tensor
+        The activated output of the previous layer
+    n : int
+        The number of nodes in the layer to be created
+    activation : callable
+        The activation function that should be used on the output of the layer
+
+    Returns:
+    --------
+    tf.Tensor
+        The activated output for the layer (after Dense → BatchNorm → Activation)
+    """
+    # Kernel initializer as specified: VarianceScaling with mode='fan_avg'
+    initializer = tf.keras.initializers.VarianceScaling(
+        mode='fan_avg'
+    )
+
+    # Dense layer WITHOUT bias (BatchNormalization will provide its own beta)
+    dense = tf.keras.layers.Dense(
+        units=n,
+        kernel_initializer=initializer,
         use_bias=False
-    )(prev)
+    )
 
-    bn_layer = tf.keras.layers.BatchNormalization(
-        axis=-1,
-        momentum=0.99,
-        epsilon=1e-7,
-        gamma_initializer=tf.keras.initializers.Ones(),
-        beta_initializer=tf.keras.initializers.Zeros()
-    )(dense_layer, training=True)
+    # Apply dense transformation first
+    Z = dense(prev)
 
-    return activation(bn_layer)
+    # Batch Normalization layer
+    # gamma initialized to 1, beta to 0, epsilon=1e-7
+    batch_norm = tf.keras.layers.BatchNormalization(
+        gamma_initializer='ones',
+        beta_initializer='zeros',
+        epsilon=1e-7
+    )
+
+    # Apply batch normalization
+    Z_norm = batch_norm(Z, training=True)
+
+    # Apply the given activation (if None, just return normalized Z)
+    if activation is not None:
+        return activation(Z_norm)
+    return Z_norm
+
