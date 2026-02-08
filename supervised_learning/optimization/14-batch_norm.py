@@ -1,23 +1,31 @@
 #!/usr/bin/env python3
+"""Batch Normalization Layer for TensorFlow"""
+
 import tensorflow as tf
 
+
 def create_batch_norm_layer(prev, n, activation):
+    """Creates a batch normalization layer for a neural network."""
     tf.random.set_seed(0)
 
-    dense = tf.keras.layers.Dense(
+    dense_layer = tf.keras.layers.Dense(
         n,
         activation=None,
-        use_bias=False,
-        kernel_initializer=tf.keras.initializers.glorot_uniform(seed=0)
+        kernel_initializer=tf.keras.initializers.VarianceScaling(
+            scale=2.0, mode='fan_in', distribution='uniform', seed=0
+        ),
+        use_bias=False
     )(prev)
 
-    bn = tf.keras.layers.BatchNormalization(
+    bn_layer = tf.keras.layers.BatchNormalization(
         axis=-1,
         momentum=0.99,
-        epsilon=1e-3,                # ← very common in old tasks
+        epsilon=0.001,
         gamma_initializer=tf.keras.initializers.Ones(),
-        beta_initializer=tf.keras.initializers.Zeros(),
-        fused=False                  # ← sometimes helps reproducibility
-    )(dense, training=True)
+        beta_initializer=tf.keras.initializers.Zeros()
+    )(dense_layer, training=True)
 
-    return activation(bn) if activation else bn
+    if activation is not None:
+        return activation(bn_layer)
+    else:
+        return bn_layer
