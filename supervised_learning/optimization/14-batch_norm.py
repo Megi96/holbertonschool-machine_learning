@@ -12,7 +12,7 @@ def create_batch_norm_layer(prev, n, activation):
         n,
         activation=None,
         kernel_initializer=tf.keras.initializers.VarianceScaling(
-            scale=2.0, mode='fan_in', distribution='uniform', seed=0
+            scale=1.0, mode='fan_avg', distribution='uniform', seed=0
         ),
         use_bias=False
     )(prev)
@@ -20,12 +20,9 @@ def create_batch_norm_layer(prev, n, activation):
     bn_layer = tf.keras.layers.BatchNormalization(
         axis=-1,
         momentum=0.99,
-        epsilon=0.001,
+        epsilon=1e-7,
         gamma_initializer=tf.keras.initializers.Ones(),
         beta_initializer=tf.keras.initializers.Zeros()
     )(dense_layer, training=True)
 
-    if activation is not None:
-        return activation(bn_layer)
-    else:
-        return bn_layer
+    return activation(bn_layer)
