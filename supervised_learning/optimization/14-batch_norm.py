@@ -1,41 +1,44 @@
 #!/usr/bin/env python3
-"""
-14-batch_norm
-Creates a batch normalization layer for a neural network using TensorFlow.
-"""
+"""Batch Normalization Layer for TensorFlow"""
 
 import tensorflow as tf
+import numpy as np
 
 
 def create_batch_norm_layer(prev, n, activation):
     """
-    Creates a batch normalization layer in TensorFlow.
+    Creates a batch normalization layer for a neural network.
 
     Args:
-        prev (tf.Tensor): Activated output from the previous layer
-        n (int): Number of nodes in the current layer
-        activation (function): Activation function to apply
+        prev (tf.Tensor): Activated output of previous layer
+        n (int): Number of nodes in the new layer
+        activation (callable): Activation function to apply
 
     Returns:
-        tf.Tensor: Activated output of the batch-normalized layer
+        tf.Tensor: Activated output of the new layer
     """
-    # Dense layer with VarianceScaling initializer
-    layer = tf.keras.layers.Dense(
-        units=n,
-        activation=None,  # no activation yet
-        kernel_initializer=tf.keras.initializers.VarianceScaling(mode='fan_avg')
+    # Set seed for reproducibility
+    tf.random.set_seed(0)
+    np.random.seed(0)
+
+    # Dense layer with variance scaling initializer
+    dense_layer = tf.keras.layers.Dense(
+        n,
+        activation=None,
+        kernel_initializer=tf.keras.initializers.VarianceScaling(
+            scale=1.0, mode='fan_avg', distribution='uniform', seed=0
+        ),
+        use_bias=False
     )(prev)
 
-    # Batch normalization with trainable gamma and beta
-    batch_norm_layer = tf.keras.layers.BatchNormalization(
+    # Batch normalization with gamma=1, beta=0, epsilon=1e-7
+    bn_layer = tf.keras.layers.BatchNormalization(
         axis=-1,
         momentum=0.99,
         epsilon=1e-7,
-        center=True,   # adds beta
-        scale=True     # adds gamma
-    )(layer)
+        gamma_initializer=tf.keras.initializers.Ones(),
+        beta_initializer=tf.keras.initializers.Zeros()
+    )(dense_layer, training=True)
 
-    # Apply activation
-    output = activation(batch_norm_layer)
-
-    return output
+    # Apply activation function
+    return activation(bn_layer)
