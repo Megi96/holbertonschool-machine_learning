@@ -1,34 +1,19 @@
 #!/usr/bin/env python3
-"""Calculate precision for each class"""
+"""Calculate precision for each class."""
 
 import numpy as np
 
 
 def precision(confusion):
     """
-    Calculates the precision for each class.
+    Calculates the precision for each class in a confusion matrix.
 
     Parameters:
-    -----------
-    confusion : numpy.ndarray of shape (classes, classes)
-        Confusion matrix where:
-        - rows represent actual (true) classes
-        - columns represent predicted classes
+        confusion (numpy.ndarray): Confusion matrix of shape (classes, classes)
 
     Returns:
-    --------
-    numpy.ndarray of shape (classes,)
-        Precision for each class
+        numpy.ndarray: Precision of each class (shape (classes,))
     """
-    # True Positives = diagonal elements
-    true_positives = np.diag(confusion)
-
-    # Predicted Positives = total number of times the model predicted each class
-    # = sum over rows (axis=0) = column sums
-    predicted_positives = np.sum(confusion, axis=0)
-
-    # Precision = TP / (TP + FP) = TP / column_sum
-    prec = true_positives / predicted_positives
-
-    return prec
-
+    true_pos = np.diag(confusion)
+    predicted = np.sum(confusion, axis=0)
+    return true_pos / predicted
