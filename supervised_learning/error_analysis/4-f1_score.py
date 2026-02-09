@@ -1,4 +1,11 @@
 #!/usr/bin/env python3
+
+"""
+This module implements the F1 score calculation.
+It provides functions to compute precision, recall, and F1 score
+for classification tasks.
+"""
+
 import numpy as np
 
 sensitivity = __import__('1-sensitivity').sensitivity
