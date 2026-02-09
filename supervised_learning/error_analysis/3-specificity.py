@@ -1,11 +1,14 @@
 #!/usr/bin/env python3
-"""Precision"""
+"""Specificity"""
 
 import numpy as np
 
 
-def precision(confusion):
-    """Calculate precision for each class."""
-    tp = np.diag(confusion)
-    pp = np.sum(confusion, axis=0)
-    return tp / pp
+def specificity(confusion):
+    """Calculate specificity for each class."""
+    total = np.sum(confusion)
+    fn = np.sum(confusion, axis=1)     # false negatives per class
+    fp = np.sum(confusion, axis=0)     # false positives per class
+    tn = total - fn - fp + np.diag(confusion)
+
+    return tn / (total - fn)
