@@ -1,33 +1,19 @@
 #!/usr/bin/env python3
-"""Calculate sensitivity (recall) for each class"""
+"""Calculate sensitivity for each class."""
 
 import numpy as np
 
 
 def sensitivity(confusion):
     """
-    Calculates the sensitivity (recall / true positive rate) for each class.
+    Calculates the sensitivity for each class in a confusion matrix.
 
     Parameters:
-    -----------
-    confusion : numpy.ndarray of shape (classes, classes)
-        Confusion matrix where:
-        - rows represent actual (true) classes
-        - columns represent predicted classes
+        confusion (numpy.ndarray): Confusion matrix of shape (classes, classes)
 
     Returns:
-    --------
-    numpy.ndarray of shape (classes,)
-        Sensitivity (recall) for each class
+        numpy.ndarray: Sensitivity of each class (shape (classes,))
     """
-    # True Positives = diagonal elements
-    true_positives = np.diag(confusion)
-
-    # Support = total number of actual instances per class = row sums
-    actual_counts = np.sum(confusion, axis=1)
-
-    # Sensitivity = TP / (TP + FN) = TP / row_sum
-    # (using small epsilon only if needed — but in this task data has no zero rows)
-    sens = true_positives / actual_counts
-
-    return sens
+    true_pos = np.diag(confusion)
+    actual = np.sum(confusion, axis=1)
+    return true_pos / actual
