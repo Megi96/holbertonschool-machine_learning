@@ -31,3 +31,4 @@ def precision(confusion):
     prec = true_positives / predicted_positives
 
     return prec
+
