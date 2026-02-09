@@ -8,16 +8,7 @@ import numpy as np
 
 
 def f1_score(confusion):
-    """
-    Calculates the F1 score for each class.
-    """
-    prec = precision(confusion)
-    sens = sensitivity(confusion)
-
-    numerator = 2 * prec * sens
-    denominator = prec + sens
-
-    # Avoid division by zero (though in this dataset it shouldn't happen)
-    f1 = np.where(denominator == 0, 0.0, numerator / denominator)
-
-    return f1
+    """Calculate F1 score for each class."""
+    p = precision(confusion)
+    s = sensitivity(confusion)
+    return 2 * p * s / (p + s)
