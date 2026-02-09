@@ -1,14 +1,28 @@
 #!/usr/bin/env python3
-"""F1 score"""
-
-sensitivity = __import__('1-sensitivity').sensitivity
-precision = __import__('2-precision').precision
-
 import numpy as np
 
+def specificity(confusion):
+    """
+    Calculates the specificity for each class in a confusion matrix
 
-def f1_score(confusion):
-    """Calculate F1 score for each class."""
-    p = precision(confusion)
-    s = sensitivity(confusion)
-    return 2 * p * s / (p + s)
+    Args:
+        confusion: numpy.ndarray of shape (classes, classes)
+
+    Returns:
+        numpy.ndarray of shape (classes,) containing specificity per class
+    """
+    classes = confusion.shape[0]
+    spec = np.zeros(classes)
+
+    total = np.sum(confusion)
+
+    for i in range(classes):
+        TP = confusion[i, i]
+        FP = np.sum(confusion[:, i]) - TP
+        FN = np.sum(confusion[i, :]) - TP
+        TN = total - (TP + FP + FN)
+
+        spec[i] = TN / (TN + FP)
+
+
+    return spec
