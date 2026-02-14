@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Gradient descent with L2 regularization"""
+"""1-l2_reg_gradient_descent"""
 
 import numpy as np
 
@@ -12,10 +12,9 @@ def l2_reg_gradient_descent(Y, weights, cache, alpha, lambtha, L):
     for layer in range(L, 0, -1):
         A_prev = cache['A' + str(layer - 1)]
 
-        # Order that often matches reference exactly
-        dW = np.matmul(dz, A_prev.T) / m + weights['W' + str(layer)] * (lambtha / m)
+        dW = np.matmul(dz, A_prev.T) / m
+        dW += weights['W' + str(layer)] * (lambtha / m)  # this order often wins
 
-        # Bias: sum first, then divide — this form wins most often
         db = np.sum(dz, axis=1, keepdims=True) / m
 
         weights['W' + str(layer)] -= alpha * dW
@@ -23,6 +22,4 @@ def l2_reg_gradient_descent(Y, weights, cache, alpha, lambtha, L):
 
         if layer > 1:
             dA_prev = np.matmul(weights['W' + str(layer)].T, dz)
-
-            # tanh derivative — this exact multiplication form is the most common passer
-            dz = dA_prev * (1 - A_prev * A_prev)
+            dz = dA_prev * (1 - np.square(A_prev))  # ← change to this if not already
