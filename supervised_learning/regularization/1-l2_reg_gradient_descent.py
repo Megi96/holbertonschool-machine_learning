@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import numpy as np
 
 def l2_reg_gradient_descent(Y, P, weights, cache, alpha, lambtha, L):
