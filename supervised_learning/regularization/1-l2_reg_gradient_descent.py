@@ -31,8 +31,9 @@ def l2_reg_gradient_descent(Y, weights, cache, alpha, lambtha, L):
         db = (1 / m) * np.sum(dZ, axis=1, keepdims=True)
 
         # Update weights and biases in place
-        weights["W" + str(layer)] -= alpha * dW
-        weights["b" + str(layer)] -= alpha * db
+        weights['W' + str(layer)] -= alpha * dW
+        weights['b' + str(layer)] -= alpha * db
+
 
         # Compute dZ for next layer (if not input layer)
         if layer > 1:
