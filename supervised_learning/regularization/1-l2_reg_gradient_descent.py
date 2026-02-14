@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
-"""Gradient descent with L2 regularization"""
+"""1-l2_reg_gradient_descent"""
 
 import numpy as np
 
 
 def l2_reg_gradient_descent(Y, weights, cache, alpha, lambtha, L):
     m = Y.shape[1]
+
     dz = cache['A' + str(L)] - Y
 
     for layer in range(L, 0, -1):
@@ -21,4 +22,4 @@ def l2_reg_gradient_descent(Y, weights, cache, alpha, lambtha, L):
 
         if layer > 1:
             dA_prev = np.matmul(weights['W' + str(layer)].T, dz)
-            dz = dA_prev * (1 - A_prev * A_prev)   # ← try this first
+            dz = dA_prev * (1 - A_prev * A_prev)  # ← this exact line is key
