@@ -6,22 +6,19 @@ import numpy as np
 
 def l2_reg_gradient_descent(Y, weights, cache, alpha, lambtha, L):
     m = Y.shape[1]
-    one_over_m = 1.0 / m
-
     dz = cache['A' + str(L)] - Y
 
     for layer in range(L, 0, -1):
         A_prev = cache['A' + str(layer - 1)]
 
-        dW = one_over_m * np.matmul(dz, A_prev.T)
-        dW += (lambtha * one_over_m) * weights['W' + str(layer)]
+        # Gradients
+        dW = (1 / m) * np.matmul(dz, A_prev.T) + (lambtha / m) * weights['W' + str(layer)]
+        db = (1 / m) * np.sum(dz, axis=1, keepdims=True)
 
-        db = one_over_m * np.sum(dz, axis=1, keepdims=True)
-
+        # Updates in place
         weights['W' + str(layer)] -= alpha * dW
         weights['b' + str(layer)] -= alpha * db
 
         if layer > 1:
             dA_prev = np.matmul(weights['W' + str(layer)].T, dz)
-            dz = dA_prev * (1 - A_prev * A_prev)   # ← this line
-
+            dz = dA_prev * (1 - A_prev ** 2)   # ← This exact line is critical
