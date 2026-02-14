@@ -6,5 +6,4 @@ import tensorflow as tf
 
 def l2_reg_cost(cost, model):
     """Calculates total cost including L2 regularization"""
-    return cost + tf.add_n(model.losses)
-  
+    return cost + tf.stack(model.losses)
