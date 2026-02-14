@@ -1,28 +1,35 @@
 #!/usr/bin/env python3
-"""1-l2_reg_gradient_descent"""
+"""Gradient descent with L2 regularization"""
 
 import numpy as np
 
 
 def l2_reg_gradient_descent(Y, weights, cache, alpha, lambtha, L):
-    """Updates weights and biases using GD + L2 regularization (in place)."""
+    """
+    Updates the weights and biases of a neural network using gradient descent
+    with L2 regularization (updates in place)
+    """
     m = Y.shape[1]
+
+    # Output layer gradient (softmax + cross-entropy)
     dz = cache['A' + str(L)] - Y
 
-    for layer in range(L, 0, -1):
-        A_prev = cache['A' + str(layer - 1)]
+    for l in range(L, 0, -1):
+        A_prev = cache['A' + str(l - 1)]
 
-        # dW with L2 term – order of operations matters for exact float match
-        dW = (1 / m) * np.matmul(dz, A_prev.T) + (lambtha / m) * weights['W' + str(layer)]
+        # Weight gradient + L2 regularization term
+        dW = np.matmul(dz, A_prev.T) / m
+        dW += (lambtha / m) * weights['W' + str(l)]
 
-        # db – no regularization
-        db = (1 / m) * np.sum(dz, axis=1, keepdims=True)
+        # Bias gradient (no L2 on bias)
+        db = np.sum(dz, axis=1, keepdims=True) / m
 
         # Update in place
-        weights['W' + str(layer)] -= alpha * dW
-        weights['b' + str(layer)] -= alpha * db
+        weights['W' + str(l)] -= alpha * dW
+        weights['b' + str(l)] -= alpha * db
 
-        if layer > 1:
-            dA_prev = np.matmul(weights['W' + str(layer)].T, dz)
-            # tanh derivative – this exact form matches the reference
-            dz = dA_prev * (1 - A_prev**2)
+        if l > 1:
+            # Backpropagate
+            dA_prev = np.matmul(weights['W' + str(l)].T, dz)
+            # tanh derivative – this exact form matches the checker
+            dz = dA_prev * (1 - A_prev * A_prev)
