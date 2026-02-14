@@ -22,4 +22,4 @@ def l2_reg_gradient_descent(Y, weights, cache, alpha, lambtha, L):
 
         if layer > 1:
             dA_prev = np.matmul(weights['W' + str(layer)].T, dz)
-            dz = dA_prev * (1 - np.power(A_prev, 2))  # ← this exact line is key
+            dz = dA_prev * (1.0 - A_prev * A_prev)   # ← Try this first
