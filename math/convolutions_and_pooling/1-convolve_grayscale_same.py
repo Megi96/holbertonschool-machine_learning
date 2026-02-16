@@ -8,11 +8,12 @@ def convolve_grayscale_same(images, kernel):
     m, h, w = images.shape
     kh, kw = kernel.shape
 
-    # Total padding needed
+    # Flip kernel for true convolution
+    kernel = np.flip(kernel, axis=(0, 1))
+
     p_h = kh - 1
     p_w = kw - 1
 
-    # Split padding correctly
     pad_top = p_h // 2
     pad_bottom = p_h - pad_top
     pad_left = p_w // 2
