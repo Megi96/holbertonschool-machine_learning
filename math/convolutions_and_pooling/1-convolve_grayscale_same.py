@@ -5,36 +5,29 @@ import numpy as np
 
 
 def convolve_grayscale_same(images, kernel):
-    """
-    Performs a same convolution on grayscale images.
-
-    images: numpy.ndarray of shape (m, h, w)
-    kernel: numpy.ndarray of shape (kh, kw)
-
-    Returns: numpy.ndarray of shape (m, h, w)
-    """
-
     m, h, w = images.shape
     kh, kw = kernel.shape
 
-    # Compute padding
-    pad_h = (kh - 1) // 2
-    pad_w = (kw - 1) // 2
+    # Total padding needed
+    p_h = kh - 1
+    p_w = kw - 1
 
-    pad_h2 = kh // 2
-    pad_w2 = kw // 2
+    # Split padding correctly
+    pad_top = p_h // 2
+    pad_bottom = p_h - pad_top
+    pad_left = p_w // 2
+    pad_right = p_w - pad_left
 
-    # Pad images
     padded = np.pad(
         images,
-        ((0, 0), (pad_h, pad_h), (pad_w, pad_w)),
+        ((0, 0),
+         (pad_top, pad_bottom),
+         (pad_left, pad_right)),
         mode='constant'
     )
 
-    # Output (same size as input)
     output = np.zeros((m, h, w))
 
-    # Only two loops
     for i in range(h):
         for j in range(w):
             image_slice = padded[:, i:i+kh, j:j+kw]
