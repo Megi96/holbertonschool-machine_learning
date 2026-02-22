@@ -15,9 +15,9 @@ def convolve_grayscale(images, kernel, padding='same', stride=(1, 1)):
     kernel : numpy.ndarray
         Array of shape (kh, kw) containing the convolution kernel.
     padding : tuple, 'same', or 'valid', optional
-        'same'  : output size same as input size
-        'valid' : no padding
-        tuple (ph, pw) : custom padding for height and width
+        'same'  : output size same as input size.
+        'valid' : no padding.
+        tuple (ph, pw) : custom padding for height and width.
         Default is 'same'.
     stride : tuple, optional
         Tuple (sh, sw) representing the stride along height and width.
@@ -41,11 +41,15 @@ def convolve_grayscale(images, kernel, padding='same', stride=(1, 1)):
     elif padding == 'valid':
         ph, pw = 0, 0
     else:
-        raise ValueError("padding must be 'same', 'valid', or a tuple")
+        raise ValueError(
+            "padding must be 'same', 'valid', or a tuple"
+        )
 
     # Pad images
     images_padded = np.pad(
-        images, ((0, 0), (ph, ph), (pw, pw)), mode='constant'
+        images,
+        ((0, 0), (ph, ph), (pw, pw)),
+        mode='constant'
     )
 
     # Compute output dimensions
@@ -58,7 +62,9 @@ def convolve_grayscale(images, kernel, padding='same', stride=(1, 1)):
     # Perform convolution (2 loops only)
     for i in range(h_out):
         for j in range(w_out):
-            patch = images_padded[:, i*sh:i*sh + kh, j*sw:j*sw + kw]
+            patch = images_padded[
+                :, i*sh:i*sh + kh, j*sw:j*sw + kw
+            ]
             output[:, i, j] = np.sum(patch * kernel, axis=(1, 2))
 
     return output
