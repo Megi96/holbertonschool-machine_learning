@@ -1,97 +1,89 @@
 #!/usr/bin/env python3
-"""Inception Network (GoogLeNet)"""
-
-import tensorflow.keras as K
+"""Inception Network"""
+from tensorflow import keras as K
 
 inception_block = __import__('0-inception_block').inception_block
 
 
 def inception_network():
     """builds the inception network"""
-
     initializer = K.initializers.HeNormal()
 
     X = K.Input(shape=(224, 224, 3))
 
-    # 7x7 convolution
-    x = K.layers.Conv2D(
-        64,
-        (7, 7),
+    # First layers
+    conv1 = K.layers.Conv2D(
+        64, (7, 7),
         strides=(2, 2),
         padding='same',
         activation='relu',
         kernel_initializer=initializer
     )(X)
 
-    x = K.layers.MaxPooling2D(
+    pool1 = K.layers.MaxPooling2D(
         (3, 3),
         strides=(2, 2),
         padding='same'
-    )(x)
+    )(conv1)
 
-    # 1x1 then 3x3 conv
-    x = K.layers.Conv2D(
-        64,
-        (1, 1),
+    conv2 = K.layers.Conv2D(
+        64, (1, 1),
         padding='same',
         activation='relu',
         kernel_initializer=initializer
-    )(x)
+    )(pool1)
 
-    x = K.layers.Conv2D(
-        192,
-        (3, 3),
+    conv3 = K.layers.Conv2D(
+        192, (3, 3),
         padding='same',
         activation='relu',
         kernel_initializer=initializer
-    )(x)
+    )(conv2)
 
-    x = K.layers.MaxPooling2D(
+    pool2 = K.layers.MaxPooling2D(
         (3, 3),
         strides=(2, 2),
         padding='same'
-    )(x)
+    )(conv3)
 
     # Inception blocks
-    x = inception_block(x, [64, 96, 128, 16, 32, 32])
-    x = inception_block(x, [128, 128, 192, 32, 96, 64])
+    inc3a = inception_block(pool2, [64, 96, 128, 16, 32, 32])
+    inc3b = inception_block(inc3a, [128, 128, 192, 32, 96, 64])
 
-    x = K.layers.MaxPooling2D(
+    pool3 = K.layers.MaxPooling2D(
         (3, 3),
         strides=(2, 2),
         padding='same'
-    )(x)
+    )(inc3b)
 
-    x = inception_block(x, [192, 96, 208, 16, 48, 64])
-    x = inception_block(x, [160, 112, 224, 24, 64, 64])
-    x = inception_block(x, [128, 128, 256, 24, 64, 64])
-    x = inception_block(x, [112, 144, 288, 32, 64, 64])
-    x = inception_block(x, [256, 160, 320, 32, 128, 128])
+    inc4a = inception_block(pool3, [192, 96, 208, 16, 48, 64])
+    inc4b = inception_block(inc4a, [160, 112, 224, 24, 64, 64])
+    inc4c = inception_block(inc4b, [128, 128, 256, 24, 64, 64])
+    inc4d = inception_block(inc4c, [112, 144, 288, 32, 64, 64])
+    inc4e = inception_block(inc4d, [256, 160, 320, 32, 128, 128])
 
-    x = K.layers.MaxPooling2D(
+    pool4 = K.layers.MaxPooling2D(
         (3, 3),
         strides=(2, 2),
         padding='same'
-    )(x)
+    )(inc4e)
 
-    x = inception_block(x, [256, 160, 320, 32, 128, 128])
-    x = inception_block(x, [384, 192, 384, 48, 128, 128])
+    inc5a = inception_block(pool4, [256, 160, 320, 32, 128, 128])
+    inc5b = inception_block(inc5a, [384, 192, 384, 48, 128, 128])
 
-    # Average pool
-    x = K.layers.AveragePooling2D(
+    avg_pool = K.layers.AveragePooling2D(
         (7, 7),
         strides=(1, 1)
-    )(x)
+    )(inc5b)
 
-    x = K.layers.Dropout(0.4)(x)
+    dropout = K.layers.Dropout(0.4)(avg_pool)
 
-    # Final classifier
-    x = K.layers.Dense(
+    output = K.layers.Dense(
         1000,
         activation='softmax',
         kernel_initializer=initializer
-    )(x)
+    )(dropout)
 
-    model = K.Model(inputs=X, outputs=x)
+    model = K.Model(inputs=X, outputs=output)
 
     return model
