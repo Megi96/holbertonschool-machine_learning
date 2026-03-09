@@ -4,45 +4,45 @@
 Builds a transition layer for DenseNet-C
 """
 
-import tensorflow as tf
-from tensorflow.keras import layers, initializers
+import tensorflow.keras as K
 
 def transition_layer(X, nb_filters, compression):
     """
-    Builds a transition layer
-    
+    Builds a transition layer for DenseNet with compression.
+
     Parameters
     ----------
-    X : tf.Tensor
+    X : tensor
         Input tensor from previous layer
     nb_filters : int
-        Number of filters in input tensor
+        Number of filters in input X
     compression : float
-        Compression factor (0 < compression <= 1)
-    
+        Compression factor for the number of filters
+
     Returns
     -------
-    X : tf.Tensor
+    X : tensor
         Output of the transition layer
     nb_filters : int
         Number of filters in the output
     """
-    # Compute the number of filters after compression
+    # Compute number of filters after compression
     nb_filters = int(nb_filters * compression)
     
-    # BatchNorm + ReLU
-    bn = layers.BatchNormalization()(X)
-    act = layers.Activation('relu')(bn)
+    # Batch normalization + ReLU
+    X = K.layers.BatchNormalization()(X)
+    X = K.layers.Activation('relu')(X)
     
-    # 1x1 Conv with compressed number of filters
-    conv = layers.Conv2D(
-        filters=nb_filters,
+    # 1x1 Convolution with he_normal initializer
+    X = K.layers.Conv2D(
+        nb_filters,
         kernel_size=1,
+        strides=1,
         padding='same',
-        kernel_initializer=initializers.he_normal(seed=0)
-    )(act)
+        kernel_initializer=K.initializers.he_normal(seed=0)
+    )(X)
     
-    # Average Pooling with pool size 2x2 and stride 2 (downsampling)
-    X = layers.AveragePooling2D(pool_size=(2, 2), strides=2, padding='valid')(conv)
+    # Average pooling to reduce spatial dimensions by 2
+    X = K.layers.AveragePooling2D(pool_size=2, strides=2, padding='same')(X)
     
     return X, nb_filters
