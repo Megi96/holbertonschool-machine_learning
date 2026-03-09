@@ -60,10 +60,24 @@ def inception_network():
     x = inception_block(x, [256, 160, 320, 32, 128, 128])
     x = inception_block(x, [384, 192, 384, 48, 128, 128])
 
+    # # Average pooling, flatten, and dense output
+    # x = K.layers.AveragePooling2D(pool_size=(7, 7), padding='valid')(x)
+    # x = K.layers.Flatten()(x)
+    # output = K.layers.Dense(1000, activation='softmax', kernel_initializer=initializer)(x)
+    
     # Average pooling, flatten, and dense output
-    x = K.layers.AveragePooling2D(pool_size=(7, 7), padding='valid')(x)
-    x = K.layers.Flatten()(x)
-    output = K.layers.Dense(1000, activation='softmax', kernel_initializer=initializer)(x)
+    x = K.layers.AveragePooling2D(
+    (7, 7),
+    strides=(1, 1),
+    padding='valid'
+    )(x)
 
+    x = K.layers.Flatten()(x)
+
+    output = K.layers.Dense(
+    1000,
+    activation='softmax',
+    kernel_initializer=initializer
+    )(x)
     model = K.Model(inputs=X, outputs=output)
     return model
