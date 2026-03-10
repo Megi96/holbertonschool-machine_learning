@@ -1,48 +1,43 @@
 #!/usr/bin/env python3
-"""
-6-transition_layer.py
-Builds a transition layer for DenseNet-C
-"""
+"""Transition Layer module"""
+from tensorflow import keras as K
 
-import tensorflow.keras as K
 
 def transition_layer(X, nb_filters, compression):
     """
-    Builds a transition layer for DenseNet with compression.
+    Builds a DenseNet transition layer
 
-    Parameters
-    ----------
-    X : tensor
-        Input tensor from previous layer
-    nb_filters : int
-        Number of filters in input X
-    compression : float
-        Compression factor for the number of filters
+    Parameters:
+    X -- output tensor from the previous layer
+    nb_filters -- integer, number of filters in X
+    compression -- compression factor for the transition layer
 
-    Returns
-    -------
-    X : tensor
-        Output of the transition layer
-    nb_filters : int
-        Number of filters in the output
+    Returns:
+    X -- output tensor of the transition layer
+    nb_filters -- number of filters in the output
     """
-    # Compute number of filters after compression
+
+    initializer = K.initializers.he_normal(seed=0)
+
+    # Compute compressed number of filters
     nb_filters = int(nb_filters * compression)
-    
-    # Batch normalization + ReLU
-    X = K.layers.BatchNormalization()(X)
-    X = K.layers.Activation('relu')(X)
-    
-    # 1x1 Convolution with he_normal initializer
-    X = K.layers.Conv2D(
-        nb_filters,
+
+    # BatchNorm -> ReLU
+    batch_norm = K.layers.BatchNormalization()(X)
+    activation = K.layers.Activation('relu')(batch_norm)
+
+    # 1x1 convolution (compression)
+    conv = K.layers.Conv2D(
+        filters=nb_filters,
         kernel_size=1,
-        strides=1,
         padding='same',
-        kernel_initializer=K.initializers.he_normal(seed=0)
-    )(X)
-    
-    # Average pooling to reduce spatial dimensions by 2
-    X = K.layers.AveragePooling2D(pool_size=2, strides=2, padding='same')(X)
-    
+        kernel_initializer=initializer
+    )(activation)
+
+    # Average pooling
+    X = K.layers.AveragePooling2D(
+        pool_size=2,
+        strides=2
+    )(conv)
+
     return X, nb_filters
