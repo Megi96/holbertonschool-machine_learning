@@ -1,78 +1,100 @@
 #!/usr/bin/env python3
+"""Module for YOLO v3 object detection."""
+import numpy as np
+import tensorflow.keras as K
 
-def process_outputs(self, outputs, image_size):
-    """
-    Processes the outputs of the YOLO model
 
-    Parameters:
-    outputs (list): list of numpy arrays from YOLO model
-    image_size (numpy.ndarray): [image_height, image_width]
+class Yolo:
+    """Uses the Yolo v3 algorithm to perform object detection."""
 
-    Returns:
-    tuple: (boxes, box_confidences, box_class_probs)
-    """
-    boxes = []
-    box_confidences = []
-    box_class_probs = []
+    def __init__(self, model_path, classes_path, class_t, nms_t, anchors):
+        """Initialize Yolo instance.
 
-    input_h = self.model.input.shape[1]
-    input_w = self.model.input.shape[2]
+        Args:
+            model_path (str): Path to a Darknet Keras model.
+            classes_path (str): Path to file containing class names.
+            class_t (float): Box score threshold for initial filtering.
+            nms_t (float): IOU threshold for non-max suppression.
+            anchors (numpy.ndarray): Array of anchor boxes shape
+                (outputs, anchor_boxes, 2).
+        """
+        self.model = K.models.load_model(model_path)
+        with open(classes_path, 'r') as f:
+            self.class_names = [line.strip() for line in f.readlines()]
+        self.class_t = class_t
+        self.nms_t = nms_t
+        self.anchors = anchors
 
-    image_h = image_size[0]
-    image_w = image_size[1]
+    def process_outputs(self, outputs, image_size):
+        """Process outputs from Darknet model for a single image.
 
-    for i, output in enumerate(outputs):
-        grid_h = output.shape[0]
-        grid_w = output.shape[1]
+        Args:
+            outputs (list): List of numpy.ndarrays with Darknet predictions.
+                Each output shape:
+                (grid_height, grid_width, anchor_boxes, 4 + 1 + classes).
+            image_size (numpy.ndarray): Image's original size
+                [image_height, image_width].
 
-        # Extract components
-        t_xy = output[..., 0:2]
-        t_wh = output[..., 2:4]
-        objectness = output[..., 4:5]
-        class_probs = output[..., 5:]
+        Returns:
+            tuple: (boxes, box_confidences, box_class_probs)
+                boxes: list of numpy.ndarrays of shape
+                    (grid_height, grid_width, anchor_boxes, 4) with
+                    boundary boxes (x1, y1, x2, y2) relative to original image.
+                box_confidences: list of numpy.ndarrays of shape
+                    (grid_height, grid_width, anchor_boxes, 1).
+                box_class_probs: list of numpy.ndarrays of shape
+                    (grid_height, grid_width, anchor_boxes, classes).
+        """
+        boxes = []
+        box_confidences = []
+        box_class_probs = []
 
-        # Create grid
-        cy = np.arange(grid_h)
-        cx = np.arange(grid_w)
-        cx, cy = np.meshgrid(cx, cy)
+        image_height, image_width = image_size
 
-        cx = cx[..., np.newaxis]
-        cy = cy[..., np.newaxis]
+        # Input dimensions from the model
+        input_width = self.model.input.shape[1]
+        input_height = self.model.input.shape[2]
 
-        grid = np.concatenate((cx, cy), axis=-1)
-        grid = grid[np.newaxis, ...]
-        grid = np.squeeze(grid)
+        for i, output in enumerate(outputs):
+            grid_height, grid_width, anchor_boxes, _ = output.shape
 
-        # --- YOLO transformations ---
+            # Extract raw values
+            t_x = output[..., 0]
+            t_y = output[..., 1]
+            t_w = output[..., 2]
+            t_h = output[..., 3]
 
-        # Center coordinates
-        b_xy = self.sigmoid(t_xy) + grid
-        b_xy[..., 0] = b_xy[..., 0] / grid_w
-        b_xy[..., 1] = b_xy[..., 1] / grid_h
+            # Anchor dimensions for this output scale
+            pw = self.anchors[i, :, 0]
+            ph = self.anchors[i, :, 1]
 
-        # Width and height
-        b_wh = np.exp(t_wh) * self.anchors[i]
-        b_wh[..., 0] = b_wh[..., 0] * (image_w / input_w)
-        b_wh[..., 1] = b_wh[..., 1] * (image_h / input_h)
+            # Create grid offsets
+            cx = np.arange(grid_width).reshape(1, grid_width, 1)
+            cy = np.arange(grid_height).reshape(grid_height, 1, 1)
 
-        # Scale centers to image size
-        b_xy[..., 0] = b_xy[..., 0] * image_w
-        b_xy[..., 1] = b_xy[..., 1] * image_h
+            # Decode box center coordinates (relative to input size)
+            bx = (1 / (1 + np.exp(-t_x)) + cx) / grid_width
+            by = (1 / (1 + np.exp(-t_y)) + cy) / grid_height
 
-        # Convert to corner coordinates
-        x1 = b_xy[..., 0] - (b_wh[..., 0] / 2)
-        y1 = b_xy[..., 1] - (b_wh[..., 1] / 2)
-        x2 = b_xy[..., 0] + (b_wh[..., 0] / 2)
-        y2 = b_xy[..., 1] + (b_wh[..., 1] / 2)
+            # Decode box dimensions (relative to input size)
+            bw = (pw * np.exp(t_w)) / input_width
+            bh = (ph * np.exp(t_h)) / input_height
 
-        box = np.stack((x1, y1, x2, y2), axis=-1)
+            # Convert to (x1, y1, x2, y2) relative to original image
+            x1 = (bx - bw / 2) * image_width
+            y1 = (by - bh / 2) * image_height
+            x2 = (bx + bw / 2) * image_width
+            y2 = (by + bh / 2) * image_height
 
-        # Sigmoid for confidence and class probabilities
-        box_confidence = self.sigmoid(objectness)
-        box_class_prob = self.sigmoid(class_probs)
+            box = np.stack([x1, y1, x2, y2], axis=-1)
+            boxes.append(box)
 
-        boxes.append(box)
-        box_confidences.append(box_confidence)
-        box_class_probs.append(box_class_prob)
+            # Box confidence: sigmoid of raw confidence
+            confidence = 1 / (1 + np.exp(-output[..., 4:5]))
+            box_confidences.append(confidence)
 
-    return boxes, box_confidences, box_class_probs
+            # Class probabilities: sigmoid of raw class scores
+            class_probs = 1 / (1 + np.exp(-output[..., 5:]))
+            box_class_probs.append(class_probs)
+
+        return boxes, box_confidences, box_class_probs
