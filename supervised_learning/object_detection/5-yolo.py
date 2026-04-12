@@ -262,7 +262,7 @@ class Yolo:
                     in the range [0, 1].
                 image_shapes: numpy.ndarray of shape (ni, 2) containing
                     the original height and width of each image as
-                    [image_height, image_width].
+                    [image_height, image_width]  .
         """
         input_h = self.model.input.shape[1]
         input_w = self.model.input.shape[2]
