@@ -239,7 +239,7 @@ class Yolo:
         """
         image_paths = [
             os.path.join(folder_path, fname)
-            for fname in os.listdir(folder_path)
+            for fname in sorted(os.listdir(folder_path))
         ]
 
         images = [
