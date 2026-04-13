@@ -10,7 +10,6 @@ class Yolo:
 
     def __init__(self, model_path, classes_path, class_t, nms_t, anchors):
         """Initialize YOLO"""
-
         self.model = K.models.load_model(model_path)
 
         with open(classes_path, 'r') as f:
@@ -25,12 +24,13 @@ class Yolo:
         Loads all images from a folder
 
         Returns:
-            images: list of images as numpy.ndarrays
-            image_paths: list of image paths
+            images: list of numpy.ndarrays
+            image_paths: list of paths
         """
         images = []
         image_paths = []
 
+        # ⚠️ DO NOT SORT HERE
         for filename in os.listdir(folder_path):
             path = os.path.join(folder_path, filename)
 
@@ -46,32 +46,32 @@ class Yolo:
         """
         Preprocesses images for the YOLO model
 
-        Args:
-            images: list of numpy.ndarray images
-
         Returns:
-            pimages: numpy.ndarray of shape
-                     (ni, input_h, input_w, 3)
-            image_shapes: numpy.ndarray of shape (ni, 2)
-                          containing original (h, w)
+            pimages: (ni, input_h, input_w, 3)
+            image_shapes: (ni, 2)
         """
-        input_h = self.model.input.shape[1]
-        input_w = self.model.input.shape[2]
+
+        # ⚠️ CRITICAL: order must be like this
+        input_w = self.model.input.shape[1]
+        input_h = self.model.input.shape[2]
 
         pimages = []
         image_shapes = []
 
         for img in images:
-            # original shape
+            # original shape (height, width)
             h, w = img.shape[:2]
             image_shapes.append([h, w])
 
-            # resize (IMPORTANT: width, height order)
-            resized = cv2.resize(img, (input_w, input_h),
-                                 interpolation=cv2.INTER_CUBIC)
+            # resize (width, height)
+            resized = cv2.resize(
+                img,
+                (input_w, input_h),
+                interpolation=cv2.INTER_CUBIC
+            )
 
-            # normalize
-            resized = resized / 255.0
+            # normalize EXACTLY
+            resized = resized.astype(np.float32) / 255.0
 
             pimages.append(resized)
 
