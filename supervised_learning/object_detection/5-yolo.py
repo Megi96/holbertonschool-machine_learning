@@ -266,8 +266,8 @@ class Yolo:
                 image_shapes (numpy.ndarray): Original image dimensions of
                     shape (ni, 2) as (image_height, image_width).
         """
-        input_h = self.model.input.shape[1]
-        input_w = self.model.input.shape[2]
+        input_h = self.model.input.shape[2]
+        input_w = self.model.input.shape[1]
 
         pimages = []
         image_shapes = []
