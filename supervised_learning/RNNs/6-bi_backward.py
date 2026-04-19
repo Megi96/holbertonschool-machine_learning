@@ -60,6 +60,6 @@ class BidirectionalCell:
         """
         # Concatenate h_next and x_t along the feature axis
         concat = np.concatenate((h_next, x_t), axis=1)
-        # Compute previous hidden state using tanh activation with backward weights
+        # Compute previous hidden state using backward weights
         h_prev = np.tanh(concat @ self.Whb + self.bhb)
         return h_prev
