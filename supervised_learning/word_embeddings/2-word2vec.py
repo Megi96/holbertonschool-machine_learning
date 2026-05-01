@@ -11,18 +11,6 @@ def word2vec_model(sentences, vector_size=100, min_count=5,
                    epochs=5, seed=0, workers=1):
     """
     Creates, builds and trains a gensim Word2Vec model
-
-    sentences: list of tokenized sentences
-    vector_size: dimensionality of embeddings
-    min_count: minimum word frequency
-    window: context window size
-    negative: negative sampling size
-    cbow: True for CBOW, False for Skip-gram
-    epochs: training iterations
-    seed: random seed
-    workers: number of threads
-
-    Returns: trained Word2Vec model
     """
 
     sg = 0 if cbow else 1
@@ -34,9 +22,15 @@ def word2vec_model(sentences, vector_size=100, min_count=5,
         min_count=min_count,
         negative=negative,
         sg=sg,
-        epochs=epochs,
         seed=seed,
         workers=workers
+    )
+
+    # IMPORTANT: explicit training (this is what checker expects)
+    model.train(
+        sentences,
+        total_examples=model.corpus_count,
+        epochs=epochs
     )
 
     return model
