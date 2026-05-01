@@ -14,14 +14,14 @@ def word2vec_model(sentences, vector_size=100, min_count=5,
 
     Args:
         sentences (list of list of str): sentences to train on
-        vector_size (int): dimensionality of embeddings
+        vector_size (int): embedding size
         min_count (int): minimum word count
         window (int): context window size
         negative (int): negative sampling size
         cbow (bool): True for CBOW, False for Skip-gram
-        epochs (int): number of training epochs
+        epochs (int): training iterations
         seed (int): random seed
-        workers (int): number of worker threads
+        workers (int): number of threads
 
     Returns:
         gensim.models.word2vec.Word2Vec: trained model
@@ -30,14 +30,20 @@ def word2vec_model(sentences, vector_size=100, min_count=5,
     sg = 0 if cbow else 1
 
     model = gensim.models.Word2Vec(
-        sentences=sentences,
         vector_size=vector_size,
         window=window,
         min_count=min_count,
         workers=workers,
         sg=sg,
         negative=negative,
-        seed=seed,
+        seed=seed
+    )
+
+    model.build_vocab(sentences)
+
+    model.train(
+        sentences,
+        total_examples=len(sentences),
         epochs=epochs
     )
 
