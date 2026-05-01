@@ -3,7 +3,7 @@
 Module that trains a Word2Vec model using gensim.
 """
 
-from gensim.models import Word2Vec
+import gensim
 
 
 def word2vec_model(sentences, vector_size=100, min_count=5,
@@ -24,12 +24,12 @@ def word2vec_model(sentences, vector_size=100, min_count=5,
         workers (int): number of worker threads
 
     Returns:
-        Word2Vec: trained model
+        gensim.models.word2vec.Word2Vec: trained model
     """
 
     sg = 0 if cbow else 1
 
-    model = Word2Vec(
+    model = gensim.models.Word2Vec(
         sentences=sentences,
         vector_size=vector_size,
         window=window,
@@ -40,7 +40,10 @@ def word2vec_model(sentences, vector_size=100, min_count=5,
         seed=seed
     )
 
-    model.train(sentences, total_examples=len(sentences),
-                epochs=epochs)
+    model.train(
+        sentences,
+        total_examples=len(sentences),
+        epochs=epochs
+    )
 
     return model
